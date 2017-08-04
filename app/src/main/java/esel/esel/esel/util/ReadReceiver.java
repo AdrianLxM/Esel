@@ -22,10 +22,10 @@ public class ReadReceiver extends BroadcastReceiver {
 
     public static final long REPEAT_TIME = 1 * 20 * 1000L;
 
-private static final String TAG = "BroadcastReceiver";
+private static final String TAG = "ReadReceiver";
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public synchronized void onReceive(Context context, Intent intent) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
@@ -36,7 +36,8 @@ private static final String TAG = "BroadcastReceiver";
 
         try {
 
-            //TODO: last-read updaten & KeepAlive
+            SP.putLong("readReceiver-called", System.currentTimeMillis());
+            //TODO: KeepAlive und ReadReceiver bei App-Beenden stoppen.
             //TODO: Battery whitelisting
 
             String datastring = Datareader.readData();
@@ -74,7 +75,7 @@ private static final String TAG = "BroadcastReceiver";
             pi.send();
         } catch (PendingIntent.CanceledException e) {
         }*/
-        //am.cancel(pi);
+        am.cancel(pi);
         am.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + REPEAT_TIME, pi);
     }
 

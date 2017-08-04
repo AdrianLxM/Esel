@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.content.res.Resources;
 
+import esel.esel.esel.util.KeepAliveReceiver;
 import esel.esel.esel.util.ReadReceiver;
 
 /**
@@ -15,6 +16,7 @@ public class Esel extends Application {
     private static Esel sInstance;
     private static Resources sResources;
     private ReadReceiver readReceiver;
+    private KeepAliveReceiver keepAliveReceiver;
 
 
     @Override
@@ -23,6 +25,7 @@ public class Esel extends Application {
         sInstance = this;
         sResources = getResources();
         startReadReceiver();
+        startKeepAliveService();
     }
 
     public static Esel getsInstance() {
@@ -34,9 +37,12 @@ public class Esel extends Application {
     }
 
 
-    private synchronized void startReadReceiver() {
+    public synchronized void startReadReceiver() {
+
         if (readReceiver == null) {
             readReceiver = new ReadReceiver();
+            readReceiver.setAlarm(this);
+        } else {
             readReceiver.setAlarm(this);
         }
     }
@@ -46,6 +52,20 @@ public class Esel extends Application {
         if (readReceiver != null)
             readReceiver.cancelAlarm(this);
             readReceiver = null;
+    }
+
+
+    private void startKeepAliveService() {
+        if (keepAliveReceiver == null) {
+            keepAliveReceiver = new KeepAliveReceiver();
+            keepAliveReceiver.setAlarm(this);
+        }
+    }
+
+
+    public void stopKeepAliveService() {
+        if (keepAliveReceiver != null)
+            keepAliveReceiver.cancelAlarm(this);
     }
 
 }

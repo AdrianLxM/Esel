@@ -26,6 +26,8 @@
         <activity android:name=".preferences.Preferences"></activity>
 
         <receiver android:name=".util.ReadReceiver" />
+        <receiver android:name=".util.KeepAliveReceiver" />
+
 
 
     </application>
