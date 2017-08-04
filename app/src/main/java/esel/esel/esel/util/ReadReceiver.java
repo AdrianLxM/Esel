@@ -46,6 +46,13 @@ private static final String TAG = "ReadReceiver";
             int oldValue = SP.getInt("lastReadingValue", -1);
 
             if(oldTime != sgv.timestamp || oldValue != sgv.value){
+
+                double slopeByMinute = 0d;
+                if(oldTime != sgv.timestamp){
+                    slopeByMinute = (sgv.value - oldValue)*60000.0d/((sgv.timestamp-oldTime)*1.0d);
+                }
+                sgv.setDirection(slopeByMinute);
+
                 SP.putLong("lastReadingTime", sgv.timestamp);
                 SP.putInt("lastReadingValue", sgv.value);
                 if(sgv.value > 38){

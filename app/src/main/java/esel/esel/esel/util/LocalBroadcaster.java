@@ -43,7 +43,11 @@ public class LocalBroadcaster {
     private static void addSgvEntry(JSONArray entriesArray, SGV sgv) throws Exception {
         JSONObject json = new JSONObject();
         json.put("sgv", sgv.value);
-        json.put("direction", "NONE");
+        if (sgv.direction == null){
+            json.put("direction", "NONE");
+        } else {
+            json.put("direction", sgv.direction);
+        }
         json.put("device", "ESEL");
         json.put("type", "sgv");
         json.put("date", sgv.timestamp);

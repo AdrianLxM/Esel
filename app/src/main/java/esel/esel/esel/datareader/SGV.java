@@ -11,6 +11,7 @@ import java.util.Date;
 public class SGV {
     public int value;
     public long timestamp;
+    public String direction;
 
     SGV(int value, long timestamp){
         this.value = value;
@@ -26,5 +27,24 @@ public class SGV {
     public String toString(){
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
         return df.format(new Date(timestamp)) + ": " + value;
+    }
+
+    public void setDirection(double slope_by_minute) {
+        direction = "NONE";
+        if (slope_by_minute <= (-3.5)) {
+            direction = "DoubleDown";
+        } else if (slope_by_minute <= (-2)) {
+            direction = "SingleDown";
+        } else if (slope_by_minute <= (-1)) {
+            direction = "FortyFiveDown";
+        } else if (slope_by_minute <= (1)) {
+            direction = "Flat";
+        } else if (slope_by_minute <= (2)) {
+            direction = "FortyFiveUp";
+        } else if (slope_by_minute <= (3.5)) {
+            direction = "SingleUp";
+        } else if (slope_by_minute <= (40)) {
+            direction = "DoubleUp";
+        }
     }
 }
