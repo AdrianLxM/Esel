@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">Esel</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_settings">Settings</string>
+    <string name="default_db_path" translatable="false">"/data/data/com.senseonics.gen12androidapp/databases/milan.db"</string>
 </resources>

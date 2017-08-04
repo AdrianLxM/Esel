@@ -5,5 +5,6 @@ package esel.esel.esel;
  */
 
 public class Config {
-    public static final String DB_LOCATION = "/sdcard/milan-2days.db";
+    //public static final String DB_LOCATION = "/sdcard/milan-2days.db";
+    public static final String DB_LOCATION = "/data/data/com.senseonics.gen12androidapp/databases/milan.db";
 }

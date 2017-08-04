@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="db-path-string"
+        android:title="DB Path"
+        android:defaultValue="@string/default_db_path"
+        android:summary="Path to where the db is stored." />
+</PreferenceScreen>

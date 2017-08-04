@@ -5,7 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import esel.esel.esel.Config;
+import esel.esel.esel.Esel;
+import esel.esel.esel.R;
+import esel.esel.esel.util.SP;
 
 /**
  * Created by adrian on 04/08/17.
@@ -20,7 +22,8 @@ public class Datareader {
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(p.getInputStream()));
 
-        dos.writeBytes("sqlite3 -csv " + Config.DB_LOCATION + " \"select timestamp, glucoseLevel from glucosereadings order by timestamp desc LIMIT 2;\"\n");
+        String path = SP.getString("db-path-string", Esel.getsResources().getString(R.string.default_db_path));
+        dos.writeBytes("sqlite3 -csv " + path + " \"select timestamp, glucoseLevel from glucosereadings order by timestamp desc LIMIT 2;\"\n");
         dos.writeBytes("exit\n");
         dos.flush();
         dos.close();
