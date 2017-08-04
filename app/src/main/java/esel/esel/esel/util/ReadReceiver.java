@@ -43,9 +43,11 @@ private static final String TAG = "ReadReceiver";
             SGV sgv = Datareader.generateSGV(datastring);
 
             long oldTime = SP.getLong("lastReadingTime", -1L);
-            int oldValue = SP.getInt("lastReadingValue", 38);
+            int oldValue = SP.getInt("lastReadingValue", -1);
 
             if(oldTime != sgv.timestamp || oldValue != sgv.value){
+                SP.putLong("lastReadingTime", sgv.timestamp);
+                 SP.putInt("lastReadingValue", sgv.value);
                 if(sgv.value > 38){
                     ToastUtils.makeToast(sgv.toString());
                 } else {
