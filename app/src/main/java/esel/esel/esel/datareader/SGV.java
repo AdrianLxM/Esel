@@ -15,6 +15,11 @@ public class SGV {
     SGV(int value, long timestamp){
         this.value = value;
         this.timestamp = timestamp;
+
+        if (this.value < 0) { this.value = 38;}
+        else if (this.value < 40) { this.value = 39;}
+        else if (this.value > 1000) { this.value = 38;}
+        else if (this.value > 400) { this.value = 400;}
     }
 
     @Override

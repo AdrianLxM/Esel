@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-        android:text="Read Value" />
+        android:text="MANUAL READ" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

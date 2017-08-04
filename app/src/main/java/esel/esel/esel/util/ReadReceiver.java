@@ -38,18 +38,20 @@ private static final String TAG = "ReadReceiver";
 
             SP.putLong("readReceiver-called", System.currentTimeMillis());
             //TODO: KeepAlive und ReadReceiver bei App-Beenden stoppen.
-            //TODO: Battery whitelisting
 
             String datastring = Datareader.readData();
             SGV sgv = Datareader.generateSGV(datastring);
 
-            //if time or value changed
-            //store value & time
-            //send broadcast
-            ToastUtils.makeToast(sgv.toString());
+            long oldTime = SP.getLong("lastReadingTime", -1L);
+            int oldValue = SP.getInt("lastReadingValue", 38);
 
-            //TODO: 40-400 beschränken
-            //TODO: Alarmzustand 65535
+            if(oldTime != sgv.timestamp || oldValue != sgv.value){
+                if(sgv.value > 38){
+                    ToastUtils.makeToast(sgv.toString());
+                } else {
+                    ToastUtils.makeToast("NOT A READING!");
+                }
+            }
 
 
 
