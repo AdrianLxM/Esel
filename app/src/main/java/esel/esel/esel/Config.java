@@ -1,4 +1,4 @@
-package esel.esel.esel.datareader;
+package esel.esel.esel;
 
 /**
  * Created by adrian on 04/08/17.
