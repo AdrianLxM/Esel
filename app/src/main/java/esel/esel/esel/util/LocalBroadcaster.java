@@ -1,5 +1,19 @@
 package esel.esel.esel.util;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
+import android.os.Bundle;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
+
+import esel.esel.esel.Esel;
 import esel.esel.esel.datareader.SGV;
 
 /**
@@ -8,8 +22,51 @@ import esel.esel.esel.datareader.SGV;
 
 public class LocalBroadcaster {
 
-    public static void broadcast(SGV sgv){
+    public static final String XDRIP_PLUS_NS_EMULATOR = "com.eveningoutpost.dexdrip.NS_EMULATOR";
 
+
+    private static final String TAG = "LocalBroadcaster";
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
+
+
+
+    public static void broadcast(SGV sgv){
+        try {
+            final JSONArray entriesBody = new JSONArray();
+            addSgvEntry(entriesBody, sgv);
+            sendBundle("add", "entries", entriesBody);
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to send bundle: " + e);
+        }
     }
+
+    private static void addSgvEntry(JSONArray entriesArray, SGV sgv) throws Exception {
+        JSONObject json = new JSONObject();
+        json.put("sgv", sgv.value);
+        json.put("direction", "NONE");
+        json.put("device", "ESEL");
+        json.put("type", "sgv");
+        json.put("date", sgv.timestamp);
+        json.put("dateString", format.format(sgv.timestamp));
+
+        entriesArray.put(json);
+    }
+
+    private static void sendBundle(String action, String collection, JSONArray json) {
+        final Bundle bundle = new Bundle();
+        bundle.putString("action", action);
+        bundle.putString("collection", collection);
+        bundle.putString("data", json.toString());
+        final Intent intent = new Intent(XDRIP_PLUS_NS_EMULATOR);
+        intent.putExtras(bundle).addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        Esel.getsInstance().sendBroadcast(intent);
+        List<ResolveInfo> receivers = Esel.getsInstance().getPackageManager().queryBroadcastReceivers(intent, 0);
+        if (receivers.size() < 1) {
+            Log.w(TAG, "No xDrip receivers found. ");
+        } else {
+            Log.d(TAG, receivers.size() + " xDrip receivers");
+        }
+    }
+
 
 }

@@ -30,6 +30,7 @@ import esel.esel.esel.datareader.Datareader;
 import esel.esel.esel.datareader.SGV;
 import esel.esel.esel.preferences.Preferences;
 import esel.esel.esel.preferences.PrefsFragment;
+import esel.esel.esel.util.LocalBroadcaster;
 import esel.esel.esel.util.ToastUtils;
 
 public class MainActivity extends AppCompatActivity
@@ -74,6 +75,10 @@ public class MainActivity extends AppCompatActivity
                     String datastring = Datareader.readData();
                     SGV sgv = Datareader.generateSGV(datastring);
                     textViewValue.setText(sgv.toString());
+
+                    //sgv.timestamp = System.currentTimeMillis();
+                    //LocalBroadcaster.broadcast(sgv);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {

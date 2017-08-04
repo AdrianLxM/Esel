@@ -47,9 +47,10 @@ private static final String TAG = "ReadReceiver";
 
             if(oldTime != sgv.timestamp || oldValue != sgv.value){
                 SP.putLong("lastReadingTime", sgv.timestamp);
-                 SP.putInt("lastReadingValue", sgv.value);
+                SP.putInt("lastReadingValue", sgv.value);
                 if(sgv.value > 38){
                     ToastUtils.makeToast(sgv.toString());
+                    LocalBroadcaster.broadcast(sgv);
                 } else {
                     ToastUtils.makeToast("NOT A READING!");
                 }
