@@ -1,4 +1,4 @@
-package esel.esel.esel.util;
+package esel.esel.esel.receivers;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -8,11 +8,8 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.util.Log;
 
-import java.io.IOException;
-
 import esel.esel.esel.Esel;
-import esel.esel.esel.datareader.Datareader;
-import esel.esel.esel.datareader.SGV;
+import esel.esel.esel.util.SP;
 
 /**
  * Created by adrian on 04/08/17.

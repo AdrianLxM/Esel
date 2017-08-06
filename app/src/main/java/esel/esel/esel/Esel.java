@@ -1,11 +1,10 @@
 package esel.esel.esel;
 
 import android.app.Application;
-import android.content.Intent;
 import android.content.res.Resources;
 
-import esel.esel.esel.util.KeepAliveReceiver;
-import esel.esel.esel.util.ReadReceiver;
+import esel.esel.esel.receivers.KeepAliveReceiver;
+import esel.esel.esel.receivers.ReadReceiver;
 
 /**
  * Created by adrian on 04/08/17.

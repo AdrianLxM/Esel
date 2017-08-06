@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".Esel"
@@ -25,8 +26,14 @@
 
         <activity android:name=".preferences.Preferences"></activity>
 
-        <receiver android:name=".util.ReadReceiver" />
-        <receiver android:name=".util.KeepAliveReceiver" />
+        <receiver android:name=".receivers.ReadReceiver" />
+        <receiver android:name=".receivers.KeepAliveReceiver" />
+
+        <receiver android:name=".receivers.AutostartReceiver" android:enabled="true" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
 
 
