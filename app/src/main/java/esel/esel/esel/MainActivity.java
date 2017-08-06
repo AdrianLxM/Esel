@@ -76,8 +76,8 @@ public class MainActivity extends AppCompatActivity
                     SGV sgv = Datareader.generateSGV(datastring);
                     textViewValue.setText(sgv.toString());
 
-                    //sgv.timestamp = System.currentTimeMillis();
-                    //LocalBroadcaster.broadcast(sgv);
+                    sgv.timestamp = System.currentTimeMillis();
+                    LocalBroadcaster.broadcast(sgv);
 
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -5,4 +5,18 @@
         android:title="DB Path"
         android:defaultValue="@string/default_db_path"
         android:summary="Path to where the db is stored." />
+
+    <SwitchPreference
+        android:key="send_to_AAPS"
+        android:title="Send to AAPS and xDrip"
+        android:defaultValue="true"
+        android:summary="Switch to 'MM640g' as BG source in the AndroidAPS config builder." />
+
+
+    <SwitchPreference
+        android:key="send_to_NS"
+        android:title="Send to NightScout"
+        android:defaultValue="true"
+        android:summary="Needs NSClient or AndroidAPS installed and configured." />
+
 </PreferenceScreen>
