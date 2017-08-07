@@ -25,6 +25,10 @@
         </activity>
 
         <activity android:name=".preferences.Preferences"></activity>
+        <activity android:name=".ErrorsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
 
         <receiver android:name=".receivers.ReadReceiver" />
         <receiver android:name=".receivers.KeepAliveReceiver" />

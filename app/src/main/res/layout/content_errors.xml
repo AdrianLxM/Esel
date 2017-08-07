@@ -22,16 +22,7 @@
         android:padding="5dp"
         android:textAlignment="center"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-        android:text="some value" />
-
-
-    <Button
-        android:id="@+id/button_readvalue"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-        android:text="MANUAL READ" />
+        android:text="ERRORS" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

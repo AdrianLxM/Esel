@@ -4,9 +4,17 @@
     <item android:title="Communicate">
         <group android:checkableBehavior="single">
             <item
+                android:id="@+id/nav_home"
+                android:icon="@drawable/ic_menu_home"
+                android:title="HOME" />
+            <item
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_menu_settings"
                 android:title="Settings" />
+            <item
+                android:id="@+id/nav_errors"
+                android:icon="@drawable/ic_menu_error"
+                android:title="Errors" />
         </group>
     </item>
 </menu>
