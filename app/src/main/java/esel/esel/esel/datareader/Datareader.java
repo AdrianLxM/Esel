@@ -21,6 +21,8 @@ public class Datareader {
 
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(p.getInputStream()));
+        BufferedReader bufferedErrorReader = new BufferedReader(
+                new InputStreamReader(p.getErrorStream()));
 
         String path = SP.getString("db-path-string", Esel.getsResources().getString(R.string.default_db_path));
         dos.writeBytes("sqlite3 -csv " + path + " \"select timestamp, glucoseLevel from glucosereadings order by timestamp desc LIMIT 2;\"\n");
@@ -29,6 +31,13 @@ public class Datareader {
         dos.close();
         p.waitFor();
         String data;
+
+        StringBuilder sb = new StringBuilder("");
+        while((data = bufferedErrorReader.readLine()) != null) {
+            sb.append(data + "\n");
+        }
+
+        SP.putString("last-error", sb.toString());
 
         if ((data = bufferedReader.readLine()) != null) {
             return data;

@@ -33,8 +33,7 @@ import esel.esel.esel.preferences.PrefsFragment;
 import esel.esel.esel.util.LocalBroadcaster;
 import esel.esel.esel.util.ToastUtils;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends MenuActivity {
 
     private Button buttonReadValue;
     private TextView textViewValue;
@@ -73,9 +72,12 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 try {
                     String datastring = Datareader.readData();
-                    SGV sgv = Datareader.generateSGV(datastring);
-                    textViewValue.setText(sgv.toString());
-
+                    if(datastring !=null) {
+                        SGV sgv = Datareader.generateSGV(datastring);
+                        textViewValue.setText(sgv.toString());
+                    } else {
+                        ToastUtils.makeToast("DB not readable!");
+                    }
                     //sgv.timestamp = System.currentTimeMillis();
                     //LocalBroadcaster.broadcast(sgv);
 
@@ -104,39 +106,6 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, Preferences.class);
-            startActivity(intent);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_settings) {
-            Intent intent = new Intent(this, Preferences.class);
-            startActivity(intent);
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 

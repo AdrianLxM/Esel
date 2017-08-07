@@ -43,6 +43,11 @@ private static final String TAG = "ReadReceiver";
             //TODO: KeepAlive und ReadReceiver bei App-Beenden stoppen.
 
             String datastring = Datareader.readData();
+            if(datastring == null){
+                ToastUtils.makeToast("DB not readable!");
+                wl.release();
+                return;
+            }
             SGV sgv = Datareader.generateSGV(datastring);
 
             long oldTime = SP.getLong("lastReadingTime", -1L);
