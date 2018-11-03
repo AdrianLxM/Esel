@@ -1,9 +1,11 @@
 package esel.esel.esel;
 
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,12 +27,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.List;
 
 import esel.esel.esel.datareader.Datareader;
 import esel.esel.esel.datareader.SGV;
 import esel.esel.esel.preferences.Preferences;
 import esel.esel.esel.preferences.PrefsFragment;
 import esel.esel.esel.util.LocalBroadcaster;
+import esel.esel.esel.util.SP;
 import esel.esel.esel.util.ToastUtils;
 
 public class MainActivity extends MenuActivity {
@@ -58,19 +62,25 @@ public class MainActivity extends MenuActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    String datastring = Datareader.readData();
-                    if(datastring !=null) {
-                        SGV sgv = Datareader.generateSGV(datastring);
+                    // String datastring = Datareader.readData();
+
+                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext());
+
+                    if(valueArray !=null && valueArray.size() > 0) {
+                        SGV sgv = valueArray.get(0);
                         textViewValue.setText(sgv.toString());
+                        LocalBroadcaster.broadcast(sgv);
                     } else {
                         ToastUtils.makeToast("DB not readable!");
                     }
                     //sgv.timestamp = System.currentTimeMillis();
                     //LocalBroadcaster.broadcast(sgv);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                    //} catch (IOException e) {
+                    //  e.printStackTrace();
+                    //} catch (InterruptedException e) {
+                    //   e.printStackTrace();
+                }catch (Exception e){
                     e.printStackTrace();
                 }
             }
