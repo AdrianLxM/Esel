@@ -10,4 +10,5 @@
   * Upload to Nightscout: Activate "Send to NightScout" in the preferences. It needs a configured AndroidAPS with internal NSClient or NSClient itself installed on the same phone
   * Inter-App-Broadcasts: Activate "Send to AAPS and xDrip". In xDrip and/or AndroidAPS activate the input method "640g/Eversense".
   * As this app is very experimental, please contact @AdrianLxM for positive/negative feedback and to register for future updates.
+6. For the modification of the Eversense App, see: https://github.com/BernhardRo/Esel/wiki/How-to-modify-the-Android-Eversense-App  
 
