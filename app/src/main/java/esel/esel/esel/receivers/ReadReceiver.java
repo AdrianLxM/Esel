@@ -5,10 +5,14 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.PowerManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import esel.esel.esel.Esel;
 import esel.esel.esel.datareader.Datareader;
@@ -25,7 +29,7 @@ public class ReadReceiver extends BroadcastReceiver {
 
     public static final long REPEAT_TIME = 1 * 20 * 1000L;
 
-private static final String TAG = "ReadReceiver";
+    private static final String TAG = "ReadReceiver";
 
     @Override
     public synchronized void onReceive(Context context, Intent intent) {
@@ -42,41 +46,53 @@ private static final String TAG = "ReadReceiver";
             SP.putLong("readReceiver-called", System.currentTimeMillis());
             //TODO: KeepAlive und ReadReceiver bei App-Beenden stoppen.
 
-            String datastring = Datareader.readData();
-            if(datastring == null){
+            //String datastring = Datareader.readData();
+
+            List<SGV>  valueArray = Datareader.readDataFromContentProvider(context);
+
+            if(valueArray == null || valueArray.size() == 0){
                 ToastUtils.makeToast("DB not readable!");
                 wl.release();
                 return;
             }
-            SGV sgv = Datareader.generateSGV(datastring);
 
-            long oldTime = SP.getLong("lastReadingTime", -1L);
-            int oldValue = SP.getInt("lastReadingValue", -1);
+            for(int i = 0; i < valueArray.size(); i++)
+            {
+                SGV sgv = valueArray.get(i);
 
-            if(oldTime != sgv.timestamp || oldValue != sgv.value){
+                long oldTime = SP.getLong("lastReadingTime", -1L);
+                int oldValue = SP.getInt("lastReadingValue", -1);
 
-                double slopeByMinute = 0d;
-                if(oldTime != sgv.timestamp){
-                    slopeByMinute = (sgv.value - oldValue)*60000.0d/((sgv.timestamp-oldTime)*1.0d);
-                }
-                sgv.setDirection(slopeByMinute);
+                if(oldTime != sgv.timestamp || oldValue != sgv.value){
 
-                SP.putLong("lastReadingTime", sgv.timestamp);
-                SP.putInt("lastReadingValue", sgv.value);
-                if(sgv.value > 38){
-                    ToastUtils.makeToast(sgv.toString());
-                    LocalBroadcaster.broadcast(sgv);
-                } else {
-                    ToastUtils.makeToast("NOT A READING!");
+                    double slopeByMinute = 0d;
+                    if(oldTime != sgv.timestamp){
+                        slopeByMinute = (sgv.value - oldValue)*60000.0d/((sgv.timestamp-oldTime)*1.0d);
+                    }
+                    sgv.setDirection(slopeByMinute);
+
+                    SP.putLong("lastReadingTime", sgv.timestamp);
+                    SP.putInt("lastReadingValue", sgv.value);
+                    if(sgv.value > 38){
+                        //ToastUtils.makeToast(sgv.toString());
+                        LocalBroadcaster.broadcast(sgv);
+                    } else {
+                        ToastUtils.makeToast("NOT A READING!");
+                    }
                 }
             }
 
 
 
-        } catch (IOException e) {
-            ToastUtils.makeToast("IOException");
-        } catch (InterruptedException e) {
-            ToastUtils.makeToast("InterruptedException");
+
+
+
+            //} catch (IOException e) {
+            //   ToastUtils.makeToast("IOException");
+            //} catch (InterruptedException e) {
+            //    ToastUtils.makeToast("InterruptedException");
+        }catch (Exception e){
+            ToastUtils.makeToast("Exception: " + e.getMessage());
         }
 
 
