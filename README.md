@@ -1,5 +1,6 @@
 # Esel
 
+## Possibility 1 (tested a bit more):
 1. Chose a phone where sqlite3 is available. Easiest solution: Use LineageOS
 2. Root your phone (su needs to work - so allow it for this app in the developer options or whatever tool you use to manage access to su)
 3. Install the Eversense app and use it as described by the vendor
@@ -10,4 +11,9 @@
   * Upload to Nightscout: Activate "Send to NightScout" in the preferences. It needs a configured AndroidAPS with internal NSClient or NSClient itself installed on the same phone
   * Inter-App-Broadcasts: Activate "Send to AAPS and xDrip". In xDrip and/or AndroidAPS activate the input method "640g/Eversense".
   * As this app is very experimental, please contact @AdrianLxM for positive/negative feedback and to register for future updates.
+  
+## Possiblity 2:
+1. Build and Install branch `esel-for-patched-app`
+2. For the modification of the Eversense App, see: https://github.com/BernhardRo/Esel/wiki/How-to-modify-the-Android-Eversense-App  
+This method needs no root but you need to know how to patch your own app.
 
