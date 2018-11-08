@@ -1,6 +1,6 @@
 # Eversense 
 
-1. Uninstall the Eversense App
+1. Uninstall the Eversense App (Warning: your local historical data (older than 1 week) will be lost!)
 1. Install the patched Eversense app (mod_com.senseonics.gen12androidapp-release.apk) and use it as described by the vendor
   * You need to enable installation of Apps from unknown sources
 2. Install esel.apk on your phone.
