@@ -64,12 +64,15 @@ public class MainActivity extends MenuActivity {
                 try {
                     // String datastring = Datareader.readData();
 
-                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext());
+                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(),12,0);
 
                     if(valueArray !=null && valueArray.size() > 0) {
-                        SGV sgv = valueArray.get(0);
-                        textViewValue.setText(sgv.toString());
-                        LocalBroadcaster.broadcast(sgv);
+                        textViewValue.setText("");
+                        for(int i =0; i< valueArray.size();i++) {
+                            SGV sgv = valueArray.get(i);
+                            textViewValue.append(sgv.toString() + "\n");
+                            LocalBroadcaster.broadcast(sgv);
+                        }
                     } else {
                         ToastUtils.makeToast("DB not readable!");
                     }

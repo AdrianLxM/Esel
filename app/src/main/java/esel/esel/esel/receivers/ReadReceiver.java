@@ -48,39 +48,63 @@ public class ReadReceiver extends BroadcastReceiver {
 
             //String datastring = Datareader.readData();
 
-            List<SGV>  valueArray = Datareader.readDataFromContentProvider(context);
+            long currentTime = System.currentTimeMillis() ;
+            long lastReadingTime = SP.getLong("lastReadingTime",currentTime);
+            long oneDay = 24*60*60 * 1000L;
 
-            if(valueArray == null || valueArray.size() == 0){
-                ToastUtils.makeToast("DB not readable!");
-                wl.release();
-                return;
+            if(lastReadingTime + oneDay < currentTime){
+                lastReadingTime = currentTime - oneDay;
             }
 
-            for(int i = 0; i < valueArray.size(); i++)
-            {
-                SGV sgv = valueArray.get(i);
+            int size = 2;
+            long sixMin= 6*60*1000L;
 
-                long oldTime = SP.getLong("lastReadingTime", -1L);
-                int oldValue = SP.getInt("lastReadingValue", -1);
+            long updatedReadingTime = lastReadingTime;
 
-                if(oldTime != sgv.timestamp || oldValue != sgv.value){
+            do{
+                lastReadingTime = updatedReadingTime;
 
-                    double slopeByMinute = 0d;
-                    if(oldTime != sgv.timestamp){
-                        slopeByMinute = (sgv.value - oldValue)*60000.0d/((sgv.timestamp-oldTime)*1.0d);
-                    }
-                    sgv.setDirection(slopeByMinute);
+                List<SGV> valueArray = Datareader.readDataFromContentProvider(context, size, lastReadingTime);
 
-                    SP.putLong("lastReadingTime", sgv.timestamp);
-                    SP.putInt("lastReadingValue", sgv.value);
-                    if(sgv.value > 38){
-                        //ToastUtils.makeToast(sgv.toString());
-                        LocalBroadcaster.broadcast(sgv);
-                    } else {
-                        ToastUtils.makeToast("NOT A READING!");
+                if (valueArray == null || valueArray.size() == 0) {
+                    ToastUtils.makeToast("DB not readable!");
+                    wl.release();
+                    return;
+                }
+
+                if (valueArray.size() != size) {
+                    //ToastUtils.makeToast("DB not readable!");
+                    wl.release();
+                    return;
+                }
+
+                for (int i = 0; i < valueArray.size(); i++) {
+                    SGV sgv = valueArray.get(i);
+
+                    long oldTime = SP.getLong("lastReadingTime", -1L);
+                    int oldValue = SP.getInt("lastReadingValue", -1);
+
+                    if (oldTime != sgv.timestamp) {
+
+                        double slopeByMinute = 0d;
+                        if (oldTime != sgv.timestamp) {
+                            slopeByMinute = (oldValue - sgv.value) * 60000.0d / ((oldTime - sgv.timestamp) * 1.0d);
+                        }
+                        sgv.setDirection(slopeByMinute);
+
+                        SP.putLong("lastReadingTime", sgv.timestamp);
+                        SP.putInt("lastReadingValue", sgv.value);
+                        if (sgv.value >= 39 && oldValue >= 39) {
+                            //ToastUtils.makeToast(sgv.toString());
+                            LocalBroadcaster.broadcast(sgv);
+                        } else {
+                            ToastUtils.makeToast("NOT A READING!");
+                        }
                     }
                 }
-            }
+
+                updatedReadingTime = SP.getLong("lastReadingTime",lastReadingTime);
+            }while (updatedReadingTime != lastReadingTime);
 
 
 
