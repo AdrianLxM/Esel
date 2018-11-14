@@ -66,24 +66,24 @@ public class MainActivity extends MenuActivity {
             public void onClick(View view) {
                 try {
 
-                    long currentTime = System.currentTimeMillis() ;
+                    long currentTime = System.currentTimeMillis();
 
-                    long sixMin = 6*60* 1000L;
+                    long syncTime =  30 * 60 * 1000L;
 
-                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(),2,currentTime-sixMin);
+                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(), 6, currentTime - syncTime);
 
-                    if(valueArray !=null && valueArray.size() > 0) {
+                    if (valueArray != null && valueArray.size() > 0) {
                         textViewValue.setText("");
-                        for(int i =0; i< valueArray.size();i++) {
+                        for (int i = 0; i < valueArray.size(); i++) {
                             SGV sgv = valueArray.get(i);
                             textViewValue.append(sgv.toString() + "\n");
-                            LocalBroadcaster.broadcast(sgv);
+                            //LocalBroadcaster.broadcast(sgv);
                         }
                     } else {
                         ToastUtils.makeToast("DB not readable!");
                     }
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -92,14 +92,24 @@ public class MainActivity extends MenuActivity {
         buttonSync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int sync = 24;
+                try {
 
-                    long currentTime = System.currentTimeMillis() ;
-                    long oneDay = 24*60*60 * 1000L;
-                    long lastTimestamp = currentTime - oneDay;
+                    String syncHours = SP.getString("max-sync-hours", Esel.getsResources().getString(R.string.max_sync_hours));
 
-                    ReadReceiver receiver = new ReadReceiver();
-                    int written = receiver.broadcastData(getBaseContext(),lastTimestamp);
-                    textViewValue.setText("Read " + written + " values from DB (last 24h hours");
+
+                    sync = Integer.parseInt(syncHours);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                long currentTime = System.currentTimeMillis();
+                long syncTime = sync * 60 * 60 * 1000L;
+                long lastTimestamp = currentTime - syncTime;
+
+                ReadReceiver receiver = new ReadReceiver();
+                int written = receiver.broadcastData(getBaseContext(), lastTimestamp);
+                textViewValue.setText("Read " + written + " values from DB\n(last " + sync + " hours)");
 
             }
         });

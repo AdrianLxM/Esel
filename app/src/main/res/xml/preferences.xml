@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
-        android:key="max_sync_hours"
+        android:key="max-sync-hours"
         android:title="Max sync hours"
         android:defaultValue="@string/max_sync_hours"
-        android:summary="Maximum number of hours in the past to sync." />
+        android:summary="Maximum number of hours in the past to sync (default is 24)." />
 
     <SwitchPreference
         android:key="send_to_AAPS"
