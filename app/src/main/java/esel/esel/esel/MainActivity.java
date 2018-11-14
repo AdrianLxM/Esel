@@ -33,6 +33,7 @@ import esel.esel.esel.datareader.Datareader;
 import esel.esel.esel.datareader.SGV;
 import esel.esel.esel.preferences.Preferences;
 import esel.esel.esel.preferences.PrefsFragment;
+import esel.esel.esel.receivers.ReadReceiver;
 import esel.esel.esel.util.LocalBroadcaster;
 import esel.esel.esel.util.SP;
 import esel.esel.esel.util.ToastUtils;
@@ -40,6 +41,7 @@ import esel.esel.esel.util.ToastUtils;
 public class MainActivity extends MenuActivity {
 
     private Button buttonReadValue;
+    private Button buttonSync;
     private TextView textViewValue;
 
     @Override
@@ -48,6 +50,7 @@ public class MainActivity extends MenuActivity {
         setupView(R.layout.activity_main);
         askForBatteryOptimizationPermission();
         buttonReadValue = (Button) findViewById(R.id.button_readvalue);
+        buttonSync = (Button) findViewById(R.id.button_manualsync);
         textViewValue = (TextView) findViewById(R.id.textview_main);
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -62,9 +65,12 @@ public class MainActivity extends MenuActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    // String datastring = Datareader.readData();
 
-                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(),12,0);
+                    long currentTime = System.currentTimeMillis() ;
+
+                    long sixMin = 6*60* 1000L;
+
+                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(),2,currentTime-sixMin);
 
                     if(valueArray !=null && valueArray.size() > 0) {
                         textViewValue.setText("");
@@ -76,16 +82,25 @@ public class MainActivity extends MenuActivity {
                     } else {
                         ToastUtils.makeToast("DB not readable!");
                     }
-                    //sgv.timestamp = System.currentTimeMillis();
-                    //LocalBroadcaster.broadcast(sgv);
 
-                    //} catch (IOException e) {
-                    //  e.printStackTrace();
-                    //} catch (InterruptedException e) {
-                    //   e.printStackTrace();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
+            }
+        });
+
+        buttonSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                    long currentTime = System.currentTimeMillis() ;
+                    long oneDay = 24*60*60 * 1000L;
+                    long lastTimestamp = currentTime - oneDay;
+
+                    ReadReceiver receiver = new ReadReceiver();
+                    int written = receiver.broadcastData(getBaseContext(),lastTimestamp);
+                    textViewValue.setText("Read " + written + " values from DB (last 24h hours");
+
             }
         });
 
