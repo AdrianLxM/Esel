@@ -39,6 +39,7 @@ public class Datareader {
         if (lastReadingTime > 0) {
             where = "timestamp > " + (lastReadingTime-1L);
         }
+
         Cursor item   = context.getContentResolver().query(uri, null, where, null, sortOder);
 
         item.moveToFirst();

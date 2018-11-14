@@ -3,6 +3,7 @@
 1. Uninstall the Eversense App (Warning: your local historical data (older than 1 week) will be lost!)
 1. Install the patched Eversense app (mod_com.senseonics.gen12androidapp-release.apk) and use it as described by the vendor
   * You need to enable installation of Apps from unknown sources
+  * Start the Eversense App, login, connect to your transmitter and use it just like the normal app.
 2. Install esel.apk on your phone.
 3. Configuration:
   * Allow ESEL to run in the background (it will ask for it)
@@ -10,5 +11,7 @@
   * Inter-App-Broadcasts: Activate "Send to AAPS and xDrip". In xDrip activate the input method "640g/Eversense".
 4. Install xDrip: https://jamorham.github.io/#xdrip-plus (Download latest APK)
   * Use as Datasource 640G / EverSense
+
+If you run esel with a fresh installation of Eversense for the first time, it can take up to 15min until your first values appear in xDrip!
 
 

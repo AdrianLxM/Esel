@@ -140,8 +140,11 @@ public class ReadReceiver extends BroadcastReceiver {
             //   ToastUtils.makeToast("IOException");
             //} catch (InterruptedException e) {
             //    ToastUtils.makeToast("InterruptedException");
+        } catch (android.database.CursorIndexOutOfBoundsException eb) {
+            eb.printStackTrace();
+            ToastUtils.makeToast("DB is empty!\nIt can take up to 15min with running Eversense App until values are available!");
         } catch (Exception e) {
-            ToastUtils.makeToast("Exception: " + e.getMessage());
+            e.printStackTrace();
         }
 
         //wl.release();

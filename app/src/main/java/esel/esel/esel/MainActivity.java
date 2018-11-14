@@ -68,7 +68,7 @@ public class MainActivity extends MenuActivity {
 
                     long currentTime = System.currentTimeMillis();
 
-                    long syncTime =  30 * 60 * 1000L;
+                    long syncTime = 30 * 60 * 1000L;
 
                     List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(), 6, currentTime - syncTime);
 
@@ -83,6 +83,10 @@ public class MainActivity extends MenuActivity {
                         ToastUtils.makeToast("DB not readable!");
                     }
 
+
+                }catch (android.database.CursorIndexOutOfBoundsException eb) {
+                        eb.printStackTrace();
+                    ToastUtils.makeToast("DB is empty!\nIt can take up to 15min with running Eversense App until values are available!");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
