@@ -42,6 +42,13 @@ public class Datareader {
 
         Cursor item   = context.getContentResolver().query(uri, null, where, null, sortOder);
 
+        boolean reverseorder = false;
+
+        if(item == null || item.getCount()==0){
+            item   = context.getContentResolver().query(uri, null, null, null, "timestamp desc LIMIT 2");
+            reverseorder = true;
+        }
+
         item.moveToFirst();
 
         StringBuilder sb = new StringBuilder("");
@@ -86,6 +93,11 @@ public class Datareader {
 //        do {
 //            // Do work...
 //        } while (transmitter.moveToNext());
+
+        if(reverseorder && valueArray.size()==2){
+            valueArray.add(valueArray.get(0));
+            valueArray.remove(0);
+        }
 
         return valueArray;
     }
