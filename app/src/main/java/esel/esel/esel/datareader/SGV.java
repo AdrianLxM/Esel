@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import esel.esel.esel.util.SP;
+
 /**
  * Created by adrian on 04/08/17.
  */
@@ -46,5 +48,26 @@ public class SGV {
         } else if (slope_by_minute <= (40)) {
             direction = "DoubleUp";
         }
+    }
+
+    public void smooth(int last){
+        double smooth = value;
+
+        double lastSmooth = SP.getInt("readingSmooth",last*1000)/1000;
+        double factor = SP.getDouble("smooth_factor",0.7);
+        double correction = SP.getDouble("correction_factor",0.6);
+        int lastRaw = SP.getInt("lastReadingRaw", value);
+
+        SP.putInt("lastReadingRaw", value);
+
+        double a=(lastSmooth+factor*(value-lastSmooth));
+        smooth=(a+correction*((lastRaw-lastSmooth)+(value-a))/2);
+
+        SP.putInt("readingSmooth",(int)Math.round(smooth*1000));
+
+        if(value > SP.getInt("lower_limit",65)){
+            value = (int)Math.round(smooth);
+        }
+
     }
 }

@@ -41,18 +41,17 @@ public class ReadReceiver extends BroadcastReceiver {
         Log.d(TAG, "onReceive called");
         setAlarm(Esel.getsInstance());
 
-        int sync = 24;
 
+        int sync = 8;
         try {
 
-            String syncHours = SP.getString("max-sync-hours", Esel.getsResources().getString(R.string.max_sync_hours));
+            sync = SP.getInt("max-sync-hours", sync);
 
-
-            sync = Integer.parseInt(syncHours);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        long syncTime = sync * 60 * 60 * 1000L;
+        long currentTime = System.currentTimeMillis();
 
         try {
 
@@ -61,26 +60,49 @@ public class ReadReceiver extends BroadcastReceiver {
 
             //String datastring = Datareader.readData();
 
-            long currentTime = System.currentTimeMillis();
-            long lastReadingTime = SP.getLong("lastReadingTime", currentTime);
 
-            long syncTime = sync * 60 * 60 * 1000L;
+            long lastReadingTime = SP.getLong("lastReadingTime", currentTime);
 
             if (lastReadingTime + syncTime < currentTime) {
                 lastReadingTime = currentTime - syncTime;
             }
 
-            broadcastData(context, lastReadingTime);
+            broadcastData(context, lastReadingTime, true);
 
 
         } catch (Exception e) {
             ToastUtils.makeToast("Exception: " + e.getMessage());
         }
 
+
+        //auto full sync in specific time intervals
+        long lastFullSync = SP.getLong("last_full_sync", currentTime);
+        long autoSycInterval = SP.getInt("auto-sync-interval",3)* 60 * 60 * 1000L ;
+
+        if(autoSycInterval > 0 && (currentTime - lastFullSync) > autoSycInterval){
+            FullSync(context,sync);
+        }
+
+
         wl.release();
     }
 
-    public int broadcastData(Context context, long lastReadingTime) {
+    public int FullSync(Context context, int syncHours){
+        long currentTime = System.currentTimeMillis();
+        long syncTime = syncHours * 60 * 60 * 1000L;
+        long lastTimestamp = currentTime - syncTime;
+
+        //disable smoothing as historical data will be overwritten
+        int written = broadcastData(context, lastTimestamp, false);
+
+        SP.putLong("last_full_sync", System.currentTimeMillis());
+
+        ToastUtils.makeToast("Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)");
+
+        return written;
+    }
+
+    public int broadcastData(Context context, long lastReadingTime, boolean smoothEnabled) {
         int result = 0;
         try {
 
@@ -121,15 +143,20 @@ public class ReadReceiver extends BroadcastReceiver {
                         }
                         sgv.setDirection(slopeByMinute);
 
-                        SP.putLong("lastReadingTime", sgv.timestamp);
-                        SP.putInt("lastReadingValue", sgv.value);
+
                         if (sgv.value >= 39 && oldValue >= 39) {
                             //ToastUtils.makeToast(sgv.toString());
+                            if(SP.getBoolean("smooth_data",false) && smoothEnabled){
+                                sgv.smooth(oldValue);
+                            }
+
                             LocalBroadcaster.broadcast(sgv);
                             result++;
                         } else {
                             ToastUtils.makeToast("NOT A READING!");
                         }
+                        SP.putLong("lastReadingTime", sgv.timestamp);
+                        SP.putInt("lastReadingValue", sgv.value);
                     }
                 }
 
@@ -151,6 +178,8 @@ public class ReadReceiver extends BroadcastReceiver {
 
         return result;
     }
+
+
 
 
     public void setAlarm(Context context) {
