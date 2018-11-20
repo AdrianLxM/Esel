@@ -8,7 +8,8 @@
 4. Configuration:
   * Allow ESEL to run in the background (it will ask for it)
   * Upload to Nightscout: Activate "Send to NightScout" in the preferences. It needs a configured AndroidAPS with internal NSClient or NSClient itself installed on the same phone
-  * Inter-App-Broadcasts: Activate "Send to AAPS and xDrip". In xDrip activate the input method "640g/Eversense".
+  * Inter-App-Broadcasts: Activate "Send to AAPS and xDrip". In xDrip and/or AndroidAPS activate the input method "640g/Eversense".
+  * "Smooth Data" applies a smoothing algorithm to the raw values and provides these smoothed values instead of the raw readings. Smoothing is per default disabled.
 5. Install xDrip: https://jamorham.github.io/#xdrip-plus (Download latest APK)
   * Use as Datasource 640G / EverSense
 
