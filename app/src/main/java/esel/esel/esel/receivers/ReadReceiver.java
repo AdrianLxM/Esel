@@ -76,8 +76,8 @@ public class ReadReceiver extends BroadcastReceiver {
 
 
         //auto full sync in specific time intervals
-        long lastFullSync = SP.getLong("last_full_sync", currentTime);
         long autoSycInterval = SP.getInt("auto-sync-interval",3)* 60 * 60 * 1000L ;
+        long lastFullSync = SP.getLong("last_full_sync", currentTime - autoSycInterval - 1);
 
         if(autoSycInterval > 0 && (currentTime - lastFullSync) > autoSycInterval){
             FullSync(context,sync);
@@ -95,7 +95,7 @@ public class ReadReceiver extends BroadcastReceiver {
         //disable smoothing as historical data will be overwritten
         int written = broadcastData(context, lastTimestamp, false);
 
-        SP.putLong("last_full_sync", System.currentTimeMillis());
+        SP.putLong("last_full_sync", currentTime);
 
         ToastUtils.makeToast("Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)");
 

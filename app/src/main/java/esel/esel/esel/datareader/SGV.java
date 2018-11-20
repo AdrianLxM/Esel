@@ -51,22 +51,22 @@ public class SGV {
     }
 
     public void smooth(int last){
-        double smooth = value;
+        double smooth = this.value;
 
         double lastSmooth = SP.getInt("readingSmooth",last*1000)/1000;
-        double factor = SP.getDouble("smooth_factor",0.7);
-        double correction = SP.getDouble("correction_factor",0.6);
+        double factor = SP.getDouble("smooth_factor",0.3);
+        double correction = SP.getDouble("correction_factor",0.5);
         int lastRaw = SP.getInt("lastReadingRaw", value);
 
-        SP.putInt("lastReadingRaw", value);
+        SP.putInt("lastReadingRaw", this.value);
 
-        double a=(lastSmooth+factor*(value-lastSmooth));
-        smooth=(a+correction*((lastRaw-lastSmooth)+(value-a))/2);
+        double a=lastSmooth+(factor*(this.value-lastSmooth));
+        smooth=a+correction*((lastRaw-lastSmooth)+(this.value-a))/2;
 
         SP.putInt("readingSmooth",(int)Math.round(smooth*1000));
 
-        if(value > SP.getInt("lower_limit",65)){
-            value = (int)Math.round(smooth);
+        if(this.value > SP.getInt("lower_limit",65)){
+            this.value = (int)Math.round(smooth);
         }
 
     }
