@@ -96,23 +96,17 @@ public class MainActivity extends MenuActivity {
         buttonSync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int sync = 24;
+                int sync = 8;
                 try {
 
-                    String syncHours = SP.getString("max-sync-hours", Esel.getsResources().getString(R.string.max_sync_hours));
+                    sync = SP.getInt("max-sync-hours", sync);
 
-
-                    sync = Integer.parseInt(syncHours);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                long currentTime = System.currentTimeMillis();
-                long syncTime = sync * 60 * 60 * 1000L;
-                long lastTimestamp = currentTime - syncTime;
-
                 ReadReceiver receiver = new ReadReceiver();
-                int written = receiver.broadcastData(getBaseContext(), lastTimestamp);
+                int written = receiver.FullSync(getBaseContext(), sync);
                 textViewValue.setText("Read " + written + " values from DB\n(last " + sync + " hours)");
 
             }
