@@ -33,6 +33,7 @@ import esel.esel.esel.datareader.Datareader;
 import esel.esel.esel.datareader.SGV;
 import esel.esel.esel.preferences.Preferences;
 import esel.esel.esel.preferences.PrefsFragment;
+import esel.esel.esel.receivers.ReadReceiver;
 import esel.esel.esel.util.LocalBroadcaster;
 import esel.esel.esel.util.SP;
 import esel.esel.esel.util.ToastUtils;
@@ -40,6 +41,7 @@ import esel.esel.esel.util.ToastUtils;
 public class MainActivity extends MenuActivity {
 
     private Button buttonReadValue;
+    private Button buttonSync;
     private TextView textViewValue;
 
     @Override
@@ -48,6 +50,7 @@ public class MainActivity extends MenuActivity {
         setupView(R.layout.activity_main);
         askForBatteryOptimizationPermission();
         buttonReadValue = (Button) findViewById(R.id.button_readvalue);
+        buttonSync = (Button) findViewById(R.id.button_manualsync);
         textViewValue = (TextView) findViewById(R.id.textview_main);
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -62,27 +65,50 @@ public class MainActivity extends MenuActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    // String datastring = Datareader.readData();
 
-                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext());
+                    long currentTime = System.currentTimeMillis();
 
-                    if(valueArray !=null && valueArray.size() > 0) {
-                        SGV sgv = valueArray.get(0);
-                        textViewValue.setText(sgv.toString());
-                        LocalBroadcaster.broadcast(sgv);
+                    long syncTime = 30 * 60 * 1000L;
+
+                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(), 6, currentTime - syncTime);
+
+                    if (valueArray != null && valueArray.size() > 0) {
+                        textViewValue.setText("");
+                        for (int i = 0; i < valueArray.size(); i++) {
+                            SGV sgv = valueArray.get(i);
+                            textViewValue.append(sgv.toString() + "\n");
+                            //LocalBroadcaster.broadcast(sgv);
+                        }
                     } else {
                         ToastUtils.makeToast("DB not readable!");
                     }
-                    //sgv.timestamp = System.currentTimeMillis();
-                    //LocalBroadcaster.broadcast(sgv);
 
-                    //} catch (IOException e) {
-                    //  e.printStackTrace();
-                    //} catch (InterruptedException e) {
-                    //   e.printStackTrace();
-                }catch (Exception e){
+
+                }catch (android.database.CursorIndexOutOfBoundsException eb) {
+                        eb.printStackTrace();
+                    ToastUtils.makeToast("DB is empty!\nIt can take up to 15min with running Eversense App until values are available!");
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
+        });
+
+        buttonSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int sync = 8;
+                try {
+
+                    sync = SP.getInt("max-sync-hours", sync);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                ReadReceiver receiver = new ReadReceiver();
+                int written = receiver.FullSync(getBaseContext(), sync);
+                textViewValue.setText("Read " + written + " values from DB\n(last " + sync + " hours)");
+
             }
         });
 

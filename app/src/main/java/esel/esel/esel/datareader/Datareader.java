@@ -24,17 +24,30 @@ public class Datareader {
     public static String uriGlucose = "content://com.senseonics.gen12androidapp.glucose";
     public static String uriTransmitter = "content://com.senseonics.gen12androidapp.transmitter";
 
-    public static List<SGV> readDataFromContentProvider(Context context)  {
+    public static List<SGV> readDataFromContentProvider(Context context ) {
+       return readDataFromContentProvider(context,  2,0);
+    }
 
-
+    public static List<SGV> readDataFromContentProvider(Context context, int number, long lastReadingTime)  {
 
         Uri uri                = Uri.parse(uriGlucose);;
 
         String[] selection = {"timestamp","glucoseLevel"};
 
-        Cursor item   = context.getContentResolver().query(uri, null, null, null, "timestamp desc LIMIT 2");
+        String where = null;
+        String sortOder = "timestamp asc LIMIT " + number;
+        if (lastReadingTime > 0) {
+            where = "timestamp > " + (lastReadingTime-1L);
+        }
 
-        String datastring = null;
+        Cursor item   = context.getContentResolver().query(uri, null, where, null, sortOder);
+
+        boolean reverseorder = false;
+
+        if(item == null || item.getCount()==0){
+            item   = context.getContentResolver().query(uri, null, null, null, "timestamp desc LIMIT 2");
+            reverseorder = true;
+        }
 
         item.moveToFirst();
 
@@ -81,38 +94,12 @@ public class Datareader {
 //            // Do work...
 //        } while (transmitter.moveToNext());
 
+        if(reverseorder && valueArray.size()==2){
+            valueArray.add(valueArray.get(0));
+            valueArray.remove(0);
+        }
+
         return valueArray;
-    }
-
-    public static String readData() throws IOException, InterruptedException {
-        Process p = Runtime.getRuntime().exec("su");
-        DataOutputStream dos = new DataOutputStream(p.getOutputStream());
-
-        BufferedReader bufferedReader = new BufferedReader(
-                new InputStreamReader(p.getInputStream()));
-        BufferedReader bufferedErrorReader = new BufferedReader(
-                new InputStreamReader(p.getErrorStream()));
-
-        String path = SP.getString("db-path-string", Esel.getsResources().getString(R.string.default_db_path));
-        dos.writeBytes("sqlite3 -csv " + path + " \"select timestamp, glucoseLevel from glucosereadings order by timestamp desc LIMIT 2;\"\n");
-        dos.writeBytes("exit\n");
-        dos.flush();
-        dos.close();
-        p.waitFor();
-        String data;
-
-        StringBuilder sb = new StringBuilder("");
-        while((data = bufferedErrorReader.readLine()) != null) {
-            sb.append(data + "\n");
-        }
-
-        SP.putString("last-error", sb.toString());
-
-        if ((data = bufferedReader.readLine()) != null) {
-            return data;
-        } else {
-            return null;
-        }
     }
 
     public static SGV generateSGV(String dataString){

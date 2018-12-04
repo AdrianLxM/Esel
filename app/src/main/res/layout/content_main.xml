@@ -32,6 +32,14 @@
         android:textAlignment="center"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:text="MANUAL READ" />
-    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_manualsync"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:text="MANUAL SYNC" />
+</LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

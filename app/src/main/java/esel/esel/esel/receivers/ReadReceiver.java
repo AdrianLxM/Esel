@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import esel.esel.esel.Esel;
+import esel.esel.esel.R;
 import esel.esel.esel.datareader.Datareader;
 import esel.esel.esel.datareader.SGV;
 import esel.esel.esel.util.LocalBroadcaster;
@@ -41,6 +42,17 @@ public class ReadReceiver extends BroadcastReceiver {
         setAlarm(Esel.getsInstance());
 
 
+        int sync = 8;
+        try {
+
+            sync = SP.getInt("max-sync-hours", sync);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        long syncTime = sync * 60 * 60 * 1000L;
+        long currentTime = System.currentTimeMillis();
+
         try {
 
             SP.putLong("readReceiver-called", System.currentTimeMillis());
@@ -48,58 +60,125 @@ public class ReadReceiver extends BroadcastReceiver {
 
             //String datastring = Datareader.readData();
 
-            List<SGV>  valueArray = Datareader.readDataFromContentProvider(context);
 
-            if(valueArray == null || valueArray.size() == 0){
-                ToastUtils.makeToast("DB not readable!");
-                wl.release();
-                return;
+            long lastReadingTime = SP.getLong("lastReadingTime", currentTime);
+
+            if (lastReadingTime + syncTime < currentTime) {
+                lastReadingTime = currentTime - syncTime;
             }
 
-            for(int i = 0; i < valueArray.size(); i++)
-            {
-                SGV sgv = valueArray.get(i);
+            broadcastData(context, lastReadingTime, true);
 
-                long oldTime = SP.getLong("lastReadingTime", -1L);
-                int oldValue = SP.getInt("lastReadingValue", -1);
 
-                if(oldTime != sgv.timestamp || oldValue != sgv.value){
+        } catch (Exception e) {
+            ToastUtils.makeToast("Exception: " + e.getMessage());
+        }
 
-                    double slopeByMinute = 0d;
-                    if(oldTime != sgv.timestamp){
-                        slopeByMinute = (sgv.value - oldValue)*60000.0d/((sgv.timestamp-oldTime)*1.0d);
-                    }
-                    sgv.setDirection(slopeByMinute);
 
-                    SP.putLong("lastReadingTime", sgv.timestamp);
-                    SP.putInt("lastReadingValue", sgv.value);
-                    if(sgv.value > 38){
-                        //ToastUtils.makeToast(sgv.toString());
-                        LocalBroadcaster.broadcast(sgv);
-                    } else {
-                        ToastUtils.makeToast("NOT A READING!");
+        //auto full sync in specific time intervals
+        long autoSycInterval = SP.getInt("auto-sync-interval",3)* 60 * 60 * 1000L ;
+        long lastFullSync = SP.getLong("last_full_sync", currentTime - autoSycInterval - 1);
+
+        if(autoSycInterval > 0 && (currentTime - lastFullSync) > autoSycInterval){
+            FullSync(context,sync);
+        }
+
+
+        wl.release();
+    }
+
+    public int FullSync(Context context, int syncHours){
+        long currentTime = System.currentTimeMillis();
+        long syncTime = syncHours * 60 * 60 * 1000L;
+        long lastTimestamp = currentTime - syncTime;
+
+        //disable smoothing as historical data will be overwritten
+        int written = broadcastData(context, lastTimestamp, false);
+
+        SP.putLong("last_full_sync", currentTime);
+
+        ToastUtils.makeToast("Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)");
+
+        return written;
+    }
+
+    public int broadcastData(Context context, long lastReadingTime, boolean smoothEnabled) {
+        int result = 0;
+        try {
+
+
+            SP.putLong("readReceiver-called", System.currentTimeMillis());
+
+            int size = 2;
+            long updatedReadingTime = lastReadingTime;
+
+            do {
+                lastReadingTime = updatedReadingTime;
+
+                List<SGV> valueArray = Datareader.readDataFromContentProvider(context, size, lastReadingTime);
+
+                if (valueArray == null || valueArray.size() == 0) {
+                    ToastUtils.makeToast("DB not readable!");
+                    //wl.release();
+                    return result;
+                }
+
+                if (valueArray.size() != size) {
+                    //ToastUtils.makeToast("DB not readable!");
+                    //wl.release();
+                    return result;
+                }
+
+                for (int i = 0; i < valueArray.size(); i++) {
+                    SGV sgv = valueArray.get(i);
+
+                    long oldTime = SP.getLong("lastReadingTime", -1L);
+                    int oldValue = SP.getInt("lastReadingValue", -1);
+
+                    if (oldTime != sgv.timestamp) {
+
+                        double slopeByMinute = 0d;
+                        if (oldTime != sgv.timestamp) {
+                            slopeByMinute = (oldValue - sgv.value) * 60000.0d / ((oldTime - sgv.timestamp) * 1.0d);
+                        }
+                        sgv.setDirection(slopeByMinute);
+
+
+                        if (sgv.value >= 39 && oldValue >= 39) {
+                            //ToastUtils.makeToast(sgv.toString());
+                            if(SP.getBoolean("smooth_data",false) && smoothEnabled){
+                                sgv.smooth(oldValue);
+                            }
+
+                            LocalBroadcaster.broadcast(sgv);
+                            result++;
+                        } else {
+                            ToastUtils.makeToast("NOT A READING!");
+                        }
+                        SP.putLong("lastReadingTime", sgv.timestamp);
+                        SP.putInt("lastReadingValue", sgv.value);
                     }
                 }
-            }
 
-
-
-
-
+                updatedReadingTime = SP.getLong("lastReadingTime", lastReadingTime);
+            } while (updatedReadingTime != lastReadingTime);
 
             //} catch (IOException e) {
             //   ToastUtils.makeToast("IOException");
             //} catch (InterruptedException e) {
             //    ToastUtils.makeToast("InterruptedException");
-        }catch (Exception e){
-            ToastUtils.makeToast("Exception: " + e.getMessage());
+        } catch (android.database.CursorIndexOutOfBoundsException eb) {
+            eb.printStackTrace();
+            ToastUtils.makeToast("DB is empty!\nIt can take up to 15min with running Eversense App until values are available!");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
+        //wl.release();
 
-
-
-        wl.release();
+        return result;
     }
+
 
 
 
@@ -121,8 +200,6 @@ public class ReadReceiver extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
     }
-
-
 
 
 }
