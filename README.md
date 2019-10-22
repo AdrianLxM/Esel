@@ -3,7 +3,7 @@
 # *** Development is continued here: https://github.com/BernhardRo/Esel ***
 
 
-~~## Possibility 1 (tested a bit more):
+~~## Possibility 1 (tested a bit more):~~
 ~~1. Chose a phone where sqlite3 is available. Easiest solution: Use LineageOS~~ 
 ~~2. Root your phone (su needs to work - so allow it for this app in the developer options or whatever tool you use to manage access to su)~~ 
 ~~3. Install the Eversense app and use it as described by the vendor~~
