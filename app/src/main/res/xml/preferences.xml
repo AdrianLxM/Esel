@@ -44,6 +44,12 @@
         android:summary="Correction Factor.\n(0 = no correction, between 0 and 1, default: 0.5)" />
 
     <EditTextPreference
+        android:key="descent_factor"
+        android:title="Descent Factor"
+        android:defaultValue="0"
+        android:summary="In range between 0 and 1. 0=no effect, 1=smoothing is disabled for descending/falling values" />
+
+    <EditTextPreference
         android:key="lower_limit"
         android:title="Lower Limit"
         android:defaultValue="65"

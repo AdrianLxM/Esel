@@ -15,6 +15,8 @@ import java.util.Locale;
 import esel.esel.esel.Esel;
 import esel.esel.esel.datareader.SGV;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by adrian on 04/08/17.
  */

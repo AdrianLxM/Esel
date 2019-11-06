@@ -1,10 +1,15 @@
 package esel.esel.esel.datareader;
 
+import android.util.Log;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import esel.esel.esel.util.SP;
+
+import static android.content.ContentValues.TAG;
+import static java.lang.Math.min;
 
 /**
  * Created by adrian on 04/08/17.
@@ -54,8 +59,9 @@ public class SGV {
         double smooth = this.value;
 
         double lastSmooth = SP.getInt("readingSmooth",last*1000)/1000;
-        double factor = SP.getDouble("smooth_factor",0.3);
-        double correction = SP.getDouble("correction_factor",0.5);
+        double factor = SP.getDouble("smooth_factor",0.3,0.0,1.0);
+        double correction = SP.getDouble("correction_factor",0.5,0.0,1.0);
+        double descent_factor = SP.getDouble("descent_factor",0.0,0.0,1.0);
         int lastRaw = SP.getInt("lastReadingRaw", value);
 
         SP.putInt("lastReadingRaw", this.value);
@@ -63,11 +69,15 @@ public class SGV {
         double a=lastSmooth+(factor*(this.value-lastSmooth));
         smooth=a+correction*((lastRaw-lastSmooth)+(this.value-a))/2;
 
+        smooth = smooth - descent_factor*(smooth-min(this.value,smooth));
+
         SP.putInt("readingSmooth",(int)Math.round(smooth*1000));
 
         if(this.value > SP.getInt("lower_limit",65)){
             this.value = (int)Math.round(smooth);
         }
+
+        Log.d(TAG, "readDataFromContentProvider called, result = " + this.value);
 
     }
 }
