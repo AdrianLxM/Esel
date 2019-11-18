@@ -113,6 +113,10 @@ public class Datareader {
         int value = Integer.parseInt(tokens[1]);
         return new SGV(value, timestamp);
     }
+    public static SGV generateSGV(int value, long timestamp){
+        return new SGV(value, timestamp);
+    }
+
 }
 
 

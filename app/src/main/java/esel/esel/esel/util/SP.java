@@ -84,6 +84,14 @@ public class SP {
         }
     }
 
+    static public float getFloat(String key, Float defaultValue) {
+        try {
+            return sharedPreferences.getFloat(key, defaultValue);
+        } catch (Exception e) {
+            return SafeParse.stringToInt(sharedPreferences.getString(key, defaultValue.toString()));
+        }
+    }
+
     static public void putBoolean(String key, boolean value) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(key, value);
@@ -123,6 +131,12 @@ public class SP {
     static public void putInt(int resourceID, int value) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(Esel.getsResources().getString(resourceID), value);
+        editor.apply();
+    }
+
+    static public void putFloat(String key, float value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat(key, value);
         editor.apply();
     }
 
