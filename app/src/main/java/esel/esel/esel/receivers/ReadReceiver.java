@@ -123,29 +123,20 @@ public class ReadReceiver extends BroadcastReceiver {
                     return result;
                 }
 
-                long oldTime = SP.getLong("lastReadingTime", -1L);
-                int oldValue = SP.getInt("lastReadingValue", -1);
-                double oldSlope = SP.getFloat("lastReadingDirection", 0f);
-                SGV oldSgv = Datareader.generateSGV(oldValue,oldTime);
-                oldSgv.setDirection(oldSlope);
 
                 if (valueArray.size() != size) {
                     //ToastUtils.makeToast("DB not readable!");
                     //wl.release();
-
-                    if (valueArray.size() == 1  ) {
-                        //ToastUtils.makeToast("DB not readable!");
-                        //wl.release();
-                        LocalBroadcaster.broadcast(oldSgv);
-                    }
 
                     return result;
                 }
 
                 for (int i = 0; i < valueArray.size(); i++) {
                     SGV sgv = valueArray.get(i);
+                    long oldTime = SP.getLong("lastReadingTime", -1L);
 
                     if (oldTime != sgv.timestamp) {
+                        int oldValue = SP.getInt("lastReadingValue", -1);
 
                         float slopeByMinute = 0f;
                         if (oldTime != sgv.timestamp) {
@@ -166,7 +157,7 @@ public class ReadReceiver extends BroadcastReceiver {
                         }
                         SP.putLong("lastReadingTime", sgv.timestamp);
                         SP.putInt("lastReadingValue", sgv.value);
-                        SP.putFloat("lastReadingDirection", slopeByMinute);
+                        //SP.putFloat("lastReadingDirection", slopeByMinute);
                     }
                 }
 
