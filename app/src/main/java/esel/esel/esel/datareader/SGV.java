@@ -17,12 +17,16 @@ import static java.lang.Math.min;
 
 public class SGV {
     public int value;
+    public int raw;
     public long timestamp;
+    public int record;
     public String direction;
 
-    SGV(int value, long timestamp){
+    SGV(int value, long timestamp,int record){
         this.value = value;
+        this.raw = value;
         this.timestamp = timestamp;
+        this.record = record;
 
         if (this.value < 0) { this.value = 38;}
         else if (this.value < 40) { this.value = 39;}
@@ -55,23 +59,34 @@ public class SGV {
         }
     }
 
-    public void smooth(int last){
-        double smooth = this.value;
+    public void smooth(int last,boolean onlyDummyRun){
+        double value = this.value;
+        double lastSmooth = (double)last;
 
-        double lastSmooth = SP.getInt("readingSmooth",last*1000)/1000;
+        if(onlyDummyRun){
+            SP.putInt("lastReadingRaw", this.value);
+            SP.putFloat("readingSmooth",(float)this.value);
+            return;
+        }
+
+        try{
+            lastSmooth = SP.getFloat("readingSmooth",(float)lastSmooth);
+        }catch (Exception e){
+            //first time: no value available, fallbacksolution is default value
+        }
         double factor = SP.getDouble("smooth_factor",0.3,0.0,1.0);
         double correction = SP.getDouble("correction_factor",0.5,0.0,1.0);
         double descent_factor = SP.getDouble("descent_factor",0.0,0.0,1.0);
-        int lastRaw = SP.getInt("lastReadingRaw", value);
+        int lastRaw = SP.getInt("lastReadingRaw", this.value);
 
         SP.putInt("lastReadingRaw", this.value);
 
-        double a=lastSmooth+(factor*(this.value-lastSmooth));
-        smooth=a+correction*((lastRaw-lastSmooth)+(this.value-a))/2;
+        double a=lastSmooth+(factor*(value-lastSmooth));
+        double smooth=a+(correction*((lastRaw-lastSmooth)+(value-a))/2);
 
-        smooth = smooth - descent_factor*(smooth-min(this.value,smooth));
+        smooth = smooth - descent_factor*(smooth-min(value,smooth));
 
-        SP.putInt("readingSmooth",(int)Math.round(smooth*1000));
+        SP.putFloat("readingSmooth",(float)smooth);
 
         if(this.value > SP.getInt("lower_limit",65)){
             this.value = (int)Math.round(smooth);

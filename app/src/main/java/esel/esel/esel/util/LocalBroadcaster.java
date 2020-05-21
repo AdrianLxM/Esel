@@ -30,7 +30,6 @@ public class LocalBroadcaster {
     private static final String TAG = "LocalBroadcaster";
     private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
 
-
     public static void broadcast(SGV sgv) {
         try {
 
@@ -49,25 +48,15 @@ public class LocalBroadcaster {
         }
     }
 
-    private static void addSgvEntry(JSONArray entriesArray, SGV sgv) throws Exception {
-        JSONObject json = new JSONObject();
-        json.put("sgv", sgv.value);
-        if (sgv.direction == null) {
-            json.put("direction", "NONE");
-        } else {
-            json.put("direction", sgv.direction);
-        }
-        json.put("device", "ESEL");
-        json.put("type", "sgv");
-        json.put("date", sgv.timestamp);
-        json.put("dateString", format.format(sgv.timestamp));
-
+    public static void addSgvEntry(JSONArray entriesArray, SGV sgv) throws Exception {
+        JSONObject json = generateSgvEntry(sgv);
         entriesArray.put(json);
     }
 
     private static JSONObject generateSgvEntry(SGV sgv) throws Exception {
         JSONObject json = new JSONObject();
         json.put("sgv", sgv.value);
+        json.put("rawbg", sgv.raw);
         if (sgv.direction == null) {
             json.put("direction", "NONE");
         } else {

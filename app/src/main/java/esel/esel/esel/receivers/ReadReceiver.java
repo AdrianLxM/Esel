@@ -10,6 +10,12 @@ import android.net.Uri;
 import android.os.PowerManager;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +28,8 @@ import esel.esel.esel.util.LocalBroadcaster;
 import esel.esel.esel.util.SP;
 import esel.esel.esel.util.ToastUtils;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by adrian on 04/08/17.
  */
@@ -32,10 +40,13 @@ public class ReadReceiver extends BroadcastReceiver {
 
     private static final String TAG = "ReadReceiver";
 
+    private boolean suppressBroadcast =false;
+    JSONArray output = new JSONArray();
+
     @Override
     public synchronized void onReceive(Context context, Intent intent) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Esel:ReadReceiver:Boradcast");
         wl.acquire();
 
         Log.d(TAG, "onReceive called");
@@ -102,11 +113,30 @@ public class ReadReceiver extends BroadcastReceiver {
         return written;
     }
 
+    public String FullExport(Context context, int syncHours){
+        long currentTime = System.currentTimeMillis();
+        long syncTime = syncHours * 60 * 60 * 1000L;
+        long lastTimestamp = currentTime - syncTime;
+
+        suppressBroadcast = true;
+        int written = broadcastData(context, lastTimestamp, false);
+        suppressBroadcast = false;
+
+        SP.putLong("last_full_sync", currentTime);
+
+        ToastUtils.makeToast("Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)");
+
+        String result = output.toString();
+        output = new JSONArray();
+
+        return result;
+    }
+
     public int broadcastData(Context context, long lastReadingTime, boolean smoothEnabled) {
         int result = 0;
         try {
 
-
+            long currentTime = System.currentTimeMillis();
             SP.putLong("readReceiver-called", System.currentTimeMillis());
 
             int size = 2;
@@ -135,23 +165,39 @@ public class ReadReceiver extends BroadcastReceiver {
                     SGV sgv = valueArray.get(i);
                     long oldTime = SP.getLong("lastReadingTime", -1L);
 
+                    if(sgv.timestamp - currentTime >2000){
+                        //sgv is from future
+                        long shiftValue = sgv.timestamp - currentTime;
+                        float sec = shiftValue/1000;
+                        Log.d(TAG, "broadcastData called, value is in future by [sec] " + sec);
+                    }
+
                     if (oldTime != sgv.timestamp) {
                         int oldValue = SP.getInt("lastReadingValue", -1);
+                        //check if old value is not older than 17min
+                        boolean hasTimeGap = (sgv.timestamp - oldTime) > 12 * 60 *1000L;
 
                         float slopeByMinute = 0f;
                         if (oldTime != sgv.timestamp) {
                             slopeByMinute = (oldValue - sgv.value) * 60000.0f / ((oldTime - sgv.timestamp) * 1.0f);
                         }
-                        sgv.setDirection(slopeByMinute);
+                        if(!hasTimeGap){
+                            sgv.setDirection(slopeByMinute);
+                        }
 
                         if (sgv.value >= 39 && oldValue >= 39) {
                             //ToastUtils.makeToast(sgv.toString());
                             if(SP.getBoolean("smooth_data",false) && smoothEnabled){
-                                sgv.smooth(oldValue);
+                                sgv.smooth(oldValue,hasTimeGap);
                             }
 
-                            LocalBroadcaster.broadcast(sgv);
+                            if(!suppressBroadcast) {
+                                LocalBroadcaster.broadcast(sgv);
+                            }else{
+                                LocalBroadcaster.addSgvEntry(output,sgv);
+                            }
                             result++;
+                            Log.d(TAG, "LocalBroadcaster.broadcast called, result = " + sgv.toString());
                         } else {
                             ToastUtils.makeToast("NOT A READING!");
                         }

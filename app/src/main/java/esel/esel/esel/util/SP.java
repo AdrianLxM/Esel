@@ -45,6 +45,11 @@ public class SP {
         return SafeParse.stringToDouble(sharedPreferences.getString(Esel.getsResources().getString(resourceID), defaultValue.toString()));
     }
 
+    static public Double getDouble(String key, Double defaultValue) {
+        Double value = SafeParse.stringToDouble(sharedPreferences.getString(key, defaultValue.toString()));
+        return value;
+    }
+
     static public Double getDouble(String key, Double defaultValue, Double min, Double max) {
         Double value = SafeParse.stringToDouble(sharedPreferences.getString(key, defaultValue.toString()));
         if(value<min){

@@ -25,21 +25,28 @@
         android:text="some value" />
 
 
-    <Button
-        android:id="@+id/button_readvalue"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-        android:text="MANUAL READ" />
+        <Button
+            android:id="@+id/button_manualsync"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sync"
+            android:textAlignment="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
-    <Button
-        android:id="@+id/button_manualsync"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-        android:text="MANUAL SYNC" />
-</LinearLayout>
+        <Button
+            android:id="@+id/button_readvalue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Read"
+            android:textAlignment="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+        <Button
+            android:id="@+id/button_exportdata"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Export Data"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

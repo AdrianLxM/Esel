@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -26,6 +27,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -42,6 +46,7 @@ public class MainActivity extends MenuActivity {
 
     private Button buttonReadValue;
     private Button buttonSync;
+    private Button buttonExport;
     private TextView textViewValue;
 
     @Override
@@ -51,6 +56,7 @@ public class MainActivity extends MenuActivity {
         askForBatteryOptimizationPermission();
         buttonReadValue = (Button) findViewById(R.id.button_readvalue);
         buttonSync = (Button) findViewById(R.id.button_manualsync);
+        buttonExport = (Button) findViewById(R.id.button_exportdata);
         textViewValue = (TextView) findViewById(R.id.textview_main);
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -109,6 +115,45 @@ public class MainActivity extends MenuActivity {
                 int written = receiver.FullSync(getBaseContext(), sync);
                 textViewValue.setText("Read " + written + " values from DB\n(last " + sync + " hours)");
 
+            }
+        });
+
+        buttonExport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int sync = 8;
+                try {
+
+                    sync = SP.getInt("max-sync-hours", sync);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                ReadReceiver receiver = new ReadReceiver();
+                String output = receiver.FullExport(getBaseContext(), sync);
+
+                String filename = "esel_output_" + System.currentTimeMillis() + ".json";
+                String path = Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator + Environment.DIRECTORY_DOWNLOADS;
+                File file = new File(path,filename);
+                if(!file.getParentFile().exists()){
+                    file.getParentFile().mkdir();
+                }
+                if(!file.getParentFile().canWrite()){
+                    ToastUtils.makeToast("Error: can not write data. Please enable the storage access permission for Esel.");
+                }
+                if(!file.exists()){
+                    try{
+                        file.createNewFile();
+                        FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
+                        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                        bufferedWriter.write(output.toString());
+                        bufferedWriter.close();
+                        textViewValue.setText("Created file " + file.getAbsoluteFile() + " containing values from DB\n(last " + sync + " hours)");
+                    }catch(IOException err){
+                        ToastUtils.makeToast("Error creating file: " + err.toString() + " occured at: "+  err.getStackTrace().toString());
+                    }
+                }
             }
         });
 
