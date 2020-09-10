@@ -32,10 +32,10 @@
         android:summary="Smoothing the bg readings to suppress noise." />
 
     <EditTextPreference
-        android:key="smooth_factor"
-        android:title="Smooth Factor"
         android:defaultValue="0.3"
-        android:summary="Exponential smooth Factor.\n(between 0 and 1, default: 0.3)" />
+        android:key="smooth_factor"
+        android:summary="Exponential smooth Factor.\n(1 = no correction, between 0 and 1, default: 0.3)"
+        android:title="Smooth Factor" />
 
     <EditTextPreference
         android:key="correction_factor"

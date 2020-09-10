@@ -81,8 +81,19 @@ public class SGV {
 
         SP.putInt("lastReadingRaw", this.value);
 
-        double a=lastSmooth+(factor*(value-lastSmooth));
-        double smooth=a+(correction*((lastRaw-lastSmooth)+(value-a))/2);
+        // exponential smoothing, see https://en.wikipedia.org/wiki/Exponential_smoothing
+        // y'[t]=y'[t-1] + (a*(y-y'[t-1])) = a*y+(1-a)*y'[t-1]
+        // factor is a, value is y, lastSmooth y'[t-1], smooth y'
+        // factor between 0 and 1, default 0.3
+        // factor = 0: always last smooth (constant)
+        // factor = 1: no smoothing
+        double smooth=lastSmooth+(factor*(value-lastSmooth));
+
+        // correction: average of delta between raw and smooth value, added to smooth with correction factor
+        // correction between 0 and 1, default 0.5
+        // correction = 0: no correction, full smoothing
+        // correction > 0: less smoothing
+        smooth=smooth+(correction*((lastRaw-lastSmooth)+(value-smooth))/2.0d);
 
         smooth = smooth - descent_factor*(smooth-min(value,smooth));
 
