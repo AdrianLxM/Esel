@@ -147,7 +147,7 @@ public class ReadReceiver extends BroadcastReceiver {
 
                 List<SGV> valueArray = Datareader.readDataFromContentProvider(context, size, lastReadingTime);
 
-                if (valueArray == null || valueArray.size() == 0) {
+                if (valueArray.size() == 0) {
                     ToastUtils.makeToast("DB not readable!");
                     //wl.release();
                     return result;
@@ -168,7 +168,7 @@ public class ReadReceiver extends BroadcastReceiver {
                     if(sgv.timestamp - currentTime >2000){
                         //sgv is from future
                         long shiftValue = sgv.timestamp - currentTime;
-                        float sec = shiftValue/1000;
+                        float sec = shiftValue/1000f;
                         Log.d(TAG, "broadcastData called, value is in future by [sec] " + sec);
                     }
 
