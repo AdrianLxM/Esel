@@ -55,4 +55,10 @@
         android:defaultValue="65"
         android:summary="Smoothing is not applied below this value. Default: 65" />
 
+    <EditTextPreference
+        android:key="shift_days"
+        android:title="Shift by days to future"
+        android:defaultValue="0"
+        android:summary="Shifts measurements by given days to future. Useful if the clock of this smartphone is set to a time in the past. Default: 0" />
+
 </PreferenceScreen>

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Esel.iml" filepath="$PROJECT_DIR$/Esel.iml" group="Esel" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Esel/app" />
+      <module fileurl="file://$PROJECT_DIR$/Esel.iml" filepath="$PROJECT_DIR$/Esel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Esel.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Esel.app.iml" />
     </modules>
   </component>
 </project>

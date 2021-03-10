@@ -165,21 +165,26 @@ public class ReadReceiver extends BroadcastReceiver {
                     SGV sgv = valueArray.get(i);
                     long oldTime = SP.getLong("lastReadingTime", -1L);
 
-                    if(sgv.timestamp - currentTime >2000){
+                    boolean newValue = oldTime != sgv.timestamp;
+                    boolean futureValue = false;
+
+                    if(sgv.timestamp - currentTime > (60 * 1000)){
                         //sgv is from future
                         long shiftValue = sgv.timestamp - currentTime;
                         float sec = shiftValue/1000f;
                         Log.d(TAG, "broadcastData called, value is in future by [sec] " + sec);
+                        futureValue = true;
                     }
 
-                    if (oldTime != sgv.timestamp) {
+                    if (newValue && !futureValue) {
                         int oldValue = SP.getInt("lastReadingValue", -1);
+                        long sgvTime = sgv.timestamp;
                         //check if old value is not older than 17min
-                        boolean hasTimeGap = (sgv.timestamp - oldTime) > 12 * 60 *1000L;
+                        boolean hasTimeGap = (sgvTime - oldTime) > 12 * 60 *1000L;
 
                         float slopeByMinute = 0f;
-                        if (oldTime != sgv.timestamp) {
-                            slopeByMinute = (oldValue - sgv.value) * 60000.0f / ((oldTime - sgv.timestamp) * 1.0f);
+                        if (oldTime != sgvTime) {
+                            slopeByMinute = (oldValue - sgv.value) * 60000.0f / ((oldTime - sgvTime) * 1.0f);
                         }
                         if(!hasTimeGap){
                             sgv.setDirection(slopeByMinute);
@@ -201,7 +206,7 @@ public class ReadReceiver extends BroadcastReceiver {
                         } else {
                             ToastUtils.makeToast("NOT A READING!");
                         }
-                        SP.putLong("lastReadingTime", sgv.timestamp);
+                        SP.putLong("lastReadingTime", sgvTime);
                         SP.putInt("lastReadingValue", sgv.value);
                         //SP.putFloat("lastReadingDirection", slopeByMinute);
                     }
