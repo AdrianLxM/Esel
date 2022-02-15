@@ -61,4 +61,17 @@
         android:defaultValue="0"
         android:summary="Shifts measurements by given days to future. Useful if the clock of this smartphone is set to a time in the past. Default: 0" />
 
+    <SwitchPreference
+        android:key="overwrite_bg"
+        android:title="Send constant value for debugging"
+        android:defaultValue="false"
+        android:summary="Send a constant value as BG reading. E.g. for debugging if no CGM is present." />
+
+    <EditTextPreference
+        android:key="bg_value"
+        android:title="BG value to send"
+        android:defaultValue="120"
+        android:summary="Constant value which is send. Default: 120" />
+
+
 </PreferenceScreen>

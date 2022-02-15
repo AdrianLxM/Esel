@@ -145,7 +145,23 @@ public class ReadReceiver extends BroadcastReceiver {
             do {
                 lastReadingTime = updatedReadingTime;
 
-                List<SGV> valueArray = Datareader.readDataFromContentProvider(context, size, lastReadingTime);
+                List<SGV> valueArray = new ArrayList<>();
+
+                if (SP.getBoolean("overwrite_bg", false)) {
+
+                    //if(currentTime - lastReadingTime > 30000) {
+                        int bg = SP.getInt("bg_value", 120);
+                        SGV sgv = new SGV(bg, currentTime, 1);
+                    valueArray.add(new SGV(bg, lastReadingTime, 1));
+                        valueArray.add(new SGV(bg, currentTime, 2));
+
+                    //}
+
+
+                }else{
+                    valueArray = Datareader.readDataFromContentProvider(context, size, lastReadingTime);
+                }
+
 
                 if (valueArray.size() == 0) {
                     ToastUtils.makeToast("DB not readable!");
@@ -190,7 +206,7 @@ public class ReadReceiver extends BroadcastReceiver {
                             sgv.setDirection(slopeByMinute);
                         }
 
-                        if (sgv.value >= 39 && oldValue >= 39) {
+                        if (sgv.value >= 39 /*&& oldValue >= 39*/) { //check  for old value to ignore first 5 min
                             //ToastUtils.makeToast(sgv.toString());
                             if(SP.getBoolean("smooth_data",false) && smoothEnabled){
                                 sgv.smooth(oldValue,hasTimeGap);

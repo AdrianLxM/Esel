@@ -22,7 +22,7 @@ public class SGV {
     public int record;
     public String direction;
 
-    SGV(int value, long timestamp,int record){
+    public SGV(int value, long timestamp, int record){
         this.value = value;
         this.raw = value;
         this.timestamp = timestamp;
@@ -80,6 +80,11 @@ public class SGV {
         int lastRaw = SP.getInt("lastReadingRaw", this.value);
 
         SP.putInt("lastReadingRaw", this.value);
+
+        if(last < 39) {//no useful value, e.g. due to pause in transmitter usage
+            lastRaw = this.value;
+            lastSmooth = this.value;
+        }
 
         // exponential smoothing, see https://en.wikipedia.org/wiki/Exponential_smoothing
         // y'[t]=y'[t-1] + (a*(y-y'[t-1])) = a*y+(1-a)*y'[t-1]
