@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="30" android:compileSdkVersionCodename="11" package="com.senseonics.gen12androidapp" platformBuildVersionCode="30" platformBuildVersionName="11">
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT"/>
+            <data android:mimeType="image/*"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.PICK"/>
+            <data android:mimeType="image/*"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="*/*"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:mimeType="*/*"/>
+        </intent>
+    </queries>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"/>
+    <application android:allowBackup="true" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:extractNativeLibs="false" android:icon="@mipmap/ic_launcher" android:isSplitRequired="true" android:label="Eversense CGM" android:largeHeap="true" android:name="com.senseonics.gen12androidapp.SenseonicsApplication" android:networkSecurityConfig="@xml/network_security_config">
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <uses-library android:name="android.test.runner" android:required="false"/>
+        <uses-library android:name="android.test.base" android:required="false"/>
+        <uses-library android:name="android.test.mock" android:required="false"/>
+        <receiver android:name="com.senseonics.util.LocaleChangedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.senseonics.util.TimeChangedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:enabled="true" android:exported="false" android:name="com.senseonics.calReminder.CalReminderReceiver"/>
+        <receiver android:name="com.senseonics.bluetoothle.BluetoothServiceAutoStarter">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:enabled="false" android:name="com.senseonics.extension.MyAppWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/app_widget_info"/>
+        </receiver>
+        <provider android:authorities="com.senseonics.gen12androidapp.provider" android:exported="false" android:grantUriPermissions="true" android:name="androidx.core.content.FileProvider">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths"/>
+        </provider>
+        <provider android:authorities="com.senseonics.gen12androidapp.transmitter" android:grantUriPermissions="true" android:exported="true" android:name="com.senseonics.db.ConnectedTransmitterContentProvider"/> <provider android:authorities="com.senseonics.gen12androidapp.glucose" android:grantUriPermissions="true" android:exported="true" android:name="com.senseonics.db.GlucoseContentProvider"/>
+        <service android:enabled="true" android:exported="false" android:name="com.senseonics.bluetoothle.BluetoothService"/>
+        <service android:enabled="true" android:exported="false" android:name="com.senseonics.graph.GraphCacheIntentService"/>
+        <activity android:label="Eversense CGM" android:name="com.senseonics.gen12androidapp.SplashActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/eula_screen" android:name="com.senseonics.gen12androidapp.EulaScreenActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/device_compatibility" android:name="com.senseonics.gen12androidapp.DeviceCompatibilityActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/welcome" android:name="com.senseonics.gen12androidapp.WelcomeScreenActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/bluetooth_pairing" android:name="com.senseonics.gen12androidapp.InitialBluetoothPairingActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/daily_calibration" android:name="com.senseonics.gen12androidapp.InitialDailyCalibrationActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/unit_title" android:name="com.senseonics.gen12androidapp.GlucoseUnitActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenSize" android:exported="true" android:label="@string/home" android:launchMode="singleTask" android:name="com.senseonics.gen12androidapp.MainActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/calibration_event" android:name="com.senseonics.events.CalibrationEventActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsTheme"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/glucose_event" android:name="com.senseonics.events.GlucoseEventActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsTheme"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/meal_event" android:name="com.senseonics.events.MealEventActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsTheme"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/insulin_event" android:name="com.senseonics.events.InsulinEventActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsTheme"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/health_event" android:name="com.senseonics.events.HealthEventActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsTheme"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/exercise_event" android:name="com.senseonics.events.ExerciseEventActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsTheme"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/alert" android:name="com.senseonics.events.AlertEventActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsTheme"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/notification" android:name="com.senseonics.events.NotificationEventActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/my_transmitter" android:name="com.senseonics.gen12androidapp.MyTransmitterActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/my_transmitter" android:name="com.senseonics.gen12androidapp.MyTransmitterExpandableActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/my_sensor" android:name="com.senseonics.gen12androidapp.MySensorActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/product_information" android:name="com.senseonics.gen12androidapp.MyProductInfoActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/glucose_event" android:name="com.senseonics.gen12androidapp.GlucoseSettingsActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/system" android:name="com.senseonics.gen12androidapp.SystemSettingsActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/system" android:name="com.senseonics.gen12androidapp.SensorListActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/daily_calibration" android:name="com.senseonics.gen12androidapp.DailyCalibrationActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/daily_calibration" android:name="com.senseonics.gen12androidapp.MealTimesActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/daily_calibration" android:name="com.senseonics.gen12androidapp.MealTimesStartEndTimePickerActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/sound_settings" android:name="com.senseonics.gen12androidapp.SoundSettingsSimplifiedActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/sound_settings" android:name="com.senseonics.gen12androidapp.SoundSelectionActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/temp_profile_title" android:name="com.senseonics.gen12androidapp.TempGlucoseProfileActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/notifications_2" android:name="com.senseonics.gen12androidapp.NotificationsActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/calibrate" android:name="com.senseonics.gen12androidapp.CalibrateActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation" android:windowSoftInputMode="stateAlwaysHidden|adjustPan"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/about" android:name="com.senseonics.gen12androidapp.AboutActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/alert_settings" android:name="com.senseonics.gen12androidapp.PrivacyActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/my_account_sync" android:name="com.senseonics.gen12androidapp.UserAccountActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/log_in" android:name="com.senseonics.gen12androidapp.UserAccountLoginActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:name="com.senseonics.gen12androidapp.LandscapeGraphViewActivity" android:parentActivityName="com.senseonics.gen12androidapp.MainActivity" android:screenOrientation="landscape" android:theme="@style/SenseonicsThemeToolBar"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.gen12androidapp.BitmapSenderActivity" android:theme="@style/SenseonicsThemeNoAnimation.Transparent"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/placement_guide" android:name="com.senseonics.gen12androidapp.PlacementGuideActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.mycircle.home.MyCircleActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.mycircle.invite.InvitePeerActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.mycircle.details.MyCirclePeerDetailsActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.authentication.UserLoginActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.account.ProfileImageCropActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.account.ProfileImageSelectActivity" android:theme="@style/SenseonicsThemeNoAnimation.Transparent"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.gen12androidapp.DosingWelcomeActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.gen12androidapp.DosingOKActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.gen12androidapp.DosingMatchActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.gen12androidapp.DosingNotOKActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.gen12androidapp.DosingSummaryActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.gen12androidapp.UITestActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.account.MyAccountActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.senseonics.calReminder.CalReminderActivity" android:screenOrientation="portrait" android:theme="@style/SenseonicsThemeNoAnimation"/>
+        <service android:directBootAware="true" android:exported="false" android:name="com.google.firebase.components.ComponentDiscoveryService">
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.crashlytics.CrashlyticsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+        </service>
+        <service android:exported="false" android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery">
+            <meta-data android:name="backend:com.google.android.datatransport.cct.CctBackendFactory" android:value="cct"/>
+        </service>
+        <service android:exported="false" android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <receiver android:exported="false" android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"/>
+        <provider android:authorities="com.senseonics.gen12androidapp.firebaseinitprovider" android:directBootAware="true" android:exported="false" android:initOrder="100" android:name="com.google.firebase.provider.FirebaseInitProvider"/>
+        <receiver android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementReceiver"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementService"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
+        <meta-data android:name="com.android.vending.splits.required" android:value="true"/>
+        <meta-data android:name="com.android.stamp.source" android:value="https://play.google.com/store"/>
+        <meta-data android:name="com.android.stamp.type" android:value="STAMP_TYPE_DISTRIBUTION_APK"/>
+        <meta-data android:name="com.android.vending.splits" android:resource="@xml/splits0"/>
+        <meta-data android:name="com.android.vending.derived.apk.id" android:value="2"/>
+    </application>
+</manifest>

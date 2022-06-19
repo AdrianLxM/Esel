@@ -147,7 +147,7 @@ public class ReadReceiver extends BroadcastReceiver {
 
                 List<SGV> valueArray = new ArrayList<>();
 
-                if (SP.getBoolean("overwrite_bg", false)) {
+                if (SP.getBoolean("overwrite_bg", false)) { //send constant values e.g. for debugging purpose
 
                     //if(currentTime - lastReadingTime > 30000) {
                         int bg = SP.getInt("bg_value", 120);
@@ -174,7 +174,7 @@ public class ReadReceiver extends BroadcastReceiver {
                     //ToastUtils.makeToast("DB not readable!");
                     //wl.release();
 
-                    //return result;
+                    return result;
                 }
 
                 for (int i = 0; i < valueArray.size(); i++) {
@@ -192,8 +192,8 @@ public class ReadReceiver extends BroadcastReceiver {
                         futureValue = true;
                     }
 
-                    //if (newValue && !futureValue) {
-                        if (!futureValue) {
+                    if (newValue && !futureValue) {
+                        //if (!futureValue) {
                         int oldValue = SP.getInt("lastReadingValue", -1);
                         long sgvTime = sgv.timestamp;
                         //check if old value is not older than 17min
