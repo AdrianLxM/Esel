@@ -132,3 +132,8 @@ On your Android smartphone:
 3.  Uninstall the original Eversense App on your phone (Warning: the local history of your CGM readings in your Eversense App will get lost) and install your new APK. The new App will behave just like the original one - except of the difference that the CGM reading can be accessed from other Apps e.g. by ESEL
 
         adb install-multiple base.apk split_config.de.apk split_config.xxhdpi.apk
+
+
+
+There is also a script available following these steps and running on Bitbucket in Docker:
+https://bitbucket.org/norbert_bitbucket1/hackingeversense/src/master/
