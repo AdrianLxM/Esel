@@ -13,11 +13,16 @@
         android:summary="Automatically do a full sync in this interval. 0 = no auto sync"/>
 
     <SwitchPreference
+        android:key="use_patched_es"
+        android:title="Get data from patched Eversense App"
+        android:defaultValue="true"
+        android:summary="Only works with patched ES App. If disabled, data will be collected from the Eversense Notfications (Companion Mode)" />
+
+    <SwitchPreference
         android:key="send_to_AAPS"
         android:title="Send to AAPS and xDrip"
         android:defaultValue="true"
         android:summary="Switch to 'MM640g' as BG source in the AndroidAPS config builder." />
-
 
     <SwitchPreference
         android:key="send_to_NS"
@@ -73,5 +78,23 @@
         android:defaultValue="120"
         android:summary="Constant value which is send. Default: 120" />
 
+    <SwitchPreference
+        android:key="use_esdms"
+        android:title="Fill missing data from eversensedms.com (backfill)"
+        android:defaultValue="false"
+        android:summary="Get data from eversensedms portal. In the ES app, the Auto sync option must be activated." />
+
+    <EditTextPreference
+        android:key="es_username"
+        android:title="Email address used for Eversense Login"
+        android:defaultValue=""
+        android:summary="The Email address used for login in the Eversense App" />
+
+    <EditTextPreference
+        android:key="es_password"
+        android:title="Password used for Eversense Login"
+        android:defaultValue=""
+        android:inputType="textPassword"
+        android:summary="The password used for login in the Eversense App" />
 
 </PreferenceScreen>

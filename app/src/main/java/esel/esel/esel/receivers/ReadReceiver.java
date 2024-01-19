@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -19,16 +20,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import esel.esel.esel.Esel;
 import esel.esel.esel.R;
 import esel.esel.esel.datareader.Datareader;
+import esel.esel.esel.datareader.EsNotificationListener;
+import esel.esel.esel.datareader.EsNowDatareader;
 import esel.esel.esel.datareader.SGV;
 import esel.esel.esel.util.LocalBroadcaster;
 import esel.esel.esel.util.SP;
 import esel.esel.esel.util.ToastUtils;
 
 import static android.content.ContentValues.TAG;
+import static java.lang.Thread.*;
 
 /**
  * Created by adrian on 04/08/17.
@@ -67,7 +72,7 @@ public class ReadReceiver extends BroadcastReceiver {
         try {
 
             SP.putLong("readReceiver-called", System.currentTimeMillis());
-            //TODO: KeepAlive und ReadReceiver bei App-Beenden stoppen.
+
 
             //String datastring = Datareader.readData();
 
@@ -78,7 +83,7 @@ public class ReadReceiver extends BroadcastReceiver {
                 lastReadingTime = currentTime - syncTime;
             }
 
-            broadcastData(context, lastReadingTime, true);
+            broadcastData(context, lastReadingTime,0, true);
 
 
         } catch (Exception e) {
@@ -104,7 +109,7 @@ public class ReadReceiver extends BroadcastReceiver {
         long lastTimestamp = currentTime - syncTime;
 
         //disable smoothing as historical data will be overwritten
-        int written = broadcastData(context, lastTimestamp, false);
+        int written = broadcastData(context, lastTimestamp,syncHours, false);
 
         SP.putLong("last_full_sync", currentTime);
 
@@ -119,7 +124,7 @@ public class ReadReceiver extends BroadcastReceiver {
         long lastTimestamp = currentTime - syncTime;
 
         suppressBroadcast = true;
-        int written = broadcastData(context, lastTimestamp, false);
+        int written = broadcastData(context, lastTimestamp, syncHours,false);
         suppressBroadcast = false;
 
         SP.putLong("last_full_sync", currentTime);
@@ -132,7 +137,7 @@ public class ReadReceiver extends BroadcastReceiver {
         return result;
     }
 
-    public int broadcastData(Context context, long lastReadingTime, boolean smoothEnabled) {
+    public int broadcastData(Context context, long lastReadingTime, int syncHours, boolean smoothEnabled) {
         int result = 0;
         try {
 
@@ -141,6 +146,9 @@ public class ReadReceiver extends BroadcastReceiver {
 
             int size = 2;
             long updatedReadingTime = lastReadingTime;
+
+            boolean use_patched_es = SP.getBoolean("use_patched_es", true);
+            boolean use_esdms = SP.getBoolean("use_esdms",false);
 
             do {
                 lastReadingTime = updatedReadingTime;
@@ -158,8 +166,21 @@ public class ReadReceiver extends BroadcastReceiver {
                     //}
 
 
-                }else{
+                }else if (use_patched_es){
                     valueArray = Datareader.readDataFromContentProvider(context, size, lastReadingTime);
+                }else {
+                    boolean read_from_nl = true;
+                    if(use_esdms){
+
+                        EsNowDatareader.updateLogin();
+
+                        if(syncHours > 0){
+
+                        }
+                    }
+                    if(read_from_nl){
+                        valueArray = EsNotificationListener.getData(size,lastReadingTime);
+                    }
                 }
 
 
@@ -194,7 +215,7 @@ public class ReadReceiver extends BroadcastReceiver {
 
                     if (newValue && !futureValue) {
                         //if (!futureValue) {
-                        int oldValue = SP.getInt("lastReadingValue", -1);
+                        float oldValue = SP.getFloat("lastReadingValue", -1f);
                         long sgvTime = sgv.timestamp;
                         //check if old value is not older than 17min
                         boolean hasTimeGap = (sgvTime - oldTime) > 12 * 60 *1000L;
@@ -224,7 +245,7 @@ public class ReadReceiver extends BroadcastReceiver {
                             ToastUtils.makeToast("NOT A READING!");
                         }
                         SP.putLong("lastReadingTime", sgvTime);
-                        SP.putInt("lastReadingValue", sgv.value);
+                        SP.putFloat("lastReadingValue", sgv.value);
                         //SP.putFloat("lastReadingDirection", slopeByMinute);
                     }
                 }

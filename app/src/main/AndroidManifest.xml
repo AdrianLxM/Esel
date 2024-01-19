@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="esel.esel.esel">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY"/>
-
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:name=".Esel"
         android:allowBackup="true"
@@ -30,8 +30,6 @@
         <activity android:name=".ErrorsActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-
-
         <receiver android:name=".receivers.ReadReceiver" />
         <receiver android:name=".receivers.KeepAliveReceiver" />
 
@@ -41,8 +39,15 @@
             </intent-filter>
         </receiver>
 
-
-
+        <service
+            android:name=".datareader.EsNotificationListener"
+            android:exported="true"
+            android:label="@string/EsNotificationListener_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+            <meta-data android:name="android.service.notification.notification_listener_service" android:value=".datareader.EsNotificationListener" />
+        </service>
     </application>
-
 </manifest>

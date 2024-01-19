@@ -16,13 +16,13 @@ import static java.lang.Math.min;
  */
 
 public class SGV {
-    public int value;
-    public int raw;
+    public float value;
+    public float raw;
     public long timestamp;
     public int record;
     public String direction;
 
-    public SGV(int value, long timestamp, int record){
+    public SGV(float value, long timestamp, int record){
         this.value = value;
         this.raw = value;
         this.timestamp = timestamp;
@@ -59,12 +59,16 @@ public class SGV {
         }
     }
 
-    public void smooth(int last,boolean onlyDummyRun){
+    /**
+     * Created by bernhard on 2018-11-18.
+     */
+
+    public void smooth(float last,boolean onlyDummyRun){
         double value = this.value;
         double lastSmooth = (double)last;
 
         if(onlyDummyRun){
-            SP.putInt("lastReadingRaw", this.value);
+            SP.putFloat("lastReadingRaw", this.value);
             SP.putFloat("readingSmooth",(float)this.value);
             return;
         }
@@ -77,9 +81,9 @@ public class SGV {
         double factor = SP.getDouble("smooth_factor",0.3,0.0,1.0);
         double correction = SP.getDouble("correction_factor",0.5,0.0,1.0);
         double descent_factor = SP.getDouble("descent_factor",0.0,0.0,1.0);
-        int lastRaw = SP.getInt("lastReadingRaw", this.value);
+        float lastRaw = SP.getFloat("lastReadingRaw", this.value);
 
-        SP.putInt("lastReadingRaw", this.value);
+        SP.putFloat("lastReadingRaw", this.value);
 
         if(last < 39) {//no useful value, e.g. due to pause in transmitter usage
             lastRaw = this.value;

@@ -107,6 +107,7 @@ public class MainActivity extends MenuActivity {
 
                     sync = SP.getInt("max-sync-hours", sync);
 
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
