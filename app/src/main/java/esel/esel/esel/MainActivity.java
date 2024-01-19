@@ -1,5 +1,7 @@
 package esel.esel.esel;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -13,6 +15,7 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -34,6 +37,7 @@ import java.io.IOException;
 import java.util.List;
 
 import esel.esel.esel.datareader.Datareader;
+import esel.esel.esel.datareader.EsNotificationListener;
 import esel.esel.esel.datareader.SGV;
 import esel.esel.esel.preferences.Preferences;
 import esel.esel.esel.preferences.PrefsFragment;
@@ -54,6 +58,7 @@ public class MainActivity extends MenuActivity {
         super.onCreate(savedInstanceState);
         setupView(R.layout.activity_main);
         askForBatteryOptimizationPermission();
+        askForNotificationAccess();
         buttonReadValue = (Button) findViewById(R.id.button_readvalue);
         buttonSync = (Button) findViewById(R.id.button_manualsync);
         buttonExport = (Button) findViewById(R.id.button_exportdata);
@@ -90,8 +95,8 @@ public class MainActivity extends MenuActivity {
                     }
 
 
-                }catch (android.database.CursorIndexOutOfBoundsException eb) {
-                        eb.printStackTrace();
+                } catch (android.database.CursorIndexOutOfBoundsException eb) {
+                    eb.printStackTrace();
                     ToastUtils.makeToast("DB is empty!\nIt can take up to 15min with running Eversense App until values are available!");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -135,30 +140,84 @@ public class MainActivity extends MenuActivity {
                 String output = receiver.FullExport(getBaseContext(), sync);
 
                 String filename = "esel_output_" + System.currentTimeMillis() + ".json";
-                String path = Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator + Environment.DIRECTORY_DOWNLOADS;
-                File file = new File(path,filename);
-                if(!file.getParentFile().exists()){
+                String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + Environment.DIRECTORY_DOWNLOADS;
+                File file = new File(path, filename);
+                if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdir();
                 }
-                if(!file.getParentFile().canWrite()){
+                if (!file.getParentFile().canWrite()) {
                     ToastUtils.makeToast("Error: can not write data. Please enable the storage access permission for Esel.");
                 }
-                if(!file.exists()){
-                    try{
+                if (!file.exists()) {
+                    try {
                         file.createNewFile();
                         FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
                         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                         bufferedWriter.write(output.toString());
                         bufferedWriter.close();
                         textViewValue.setText("Created file " + file.getAbsoluteFile() + " containing values from DB\n(last " + sync + " hours)");
-                    }catch(IOException err){
-                        ToastUtils.makeToast("Error creating file: " + err.toString() + " occured at: "+  err.getStackTrace().toString());
+                    } catch (IOException err) {
+                        ToastUtils.makeToast("Error creating file: " + err.toString() + " occured at: " + err.getStackTrace().toString());
                     }
                 }
             }
         });
 
     }
+
+    private void askForNotificationAccess() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            final String packageName = getPackageName();
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getBaseContext());
+
+            boolean nlenabled = NotificationManagerCompat.getEnabledListenerPackages(getBaseContext()).contains(packageName);
+
+
+            if (!nlenabled) {
+                final Runnable askNotificationAccessRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {
+                            final String msg = "Device does not appear to support notification access!";
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtils.makeToast("Device does not appear to support notification access!");
+                                }
+                            });
+                        }
+                    }
+                };
+
+                try {
+                    final Intent intent = new Intent();
+                    intent.setAction(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+                    intent.setData(Uri.parse("package:" + packageName));
+                    //startActivity(intent);
+
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Please Allow Permission")
+                            .setMessage("For data access in Companion Mode, ESEL needs access to the System Notifications.\n" +
+                                    "If the settings are not available due to restricted settings, see 'https://support.google.com/android/answer/12623953'.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    SystemClock.sleep(100);
+                                    MainActivity.this.runOnUiThread(askNotificationAccessRunnable);
+                                    dialog.dismiss();
+                                }
+                            }).show();
+                } catch (Exception e) {
+                    ToastUtils.makeToast("Please whitelist ESEL in the phone settings.");
+                }
+            }
+        }
+
+}
 
     private void askForBatteryOptimizationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
