@@ -63,7 +63,15 @@ public class EsNotificationListener extends NotificationListenerService {
 
     public static SGV generateSGV(Notification notification ,int record){
         long timestamp = notification.when;
-        float value = Float.parseFloat((String) notification.tickerText);
+        String tickerText = (String) notification.tickerText;
+        int value;
+        if(tickerText.contains(".") || tickerText.contains(",")){ //is mmol/l
+            float valuef = Float.parseFloat(tickerText);
+            value = SGV.Convert(valuef);
+        }else{
+            value =Integer.parseInt(tickerText);
+        }
+
         return new SGV(value, timestamp,record);
     }
 

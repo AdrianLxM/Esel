@@ -111,7 +111,7 @@ public class Datareader {
     public static SGV generateSGV(String dataString){
         String[] tokens = dataString.split(",");
         long timestamp = Long.parseLong(tokens[0]);
-        float value = Float.parseFloat(tokens[1]);
+        int value = Integer.parseInt(tokens[1]);
         int record = Integer.parseInt(tokens[2]);
         return new SGV(value, timestamp,record);
     }

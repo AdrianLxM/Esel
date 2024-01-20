@@ -215,7 +215,12 @@ public class ReadReceiver extends BroadcastReceiver {
 
                     if (newValue && !futureValue) {
                         //if (!futureValue) {
-                        float oldValue = SP.getFloat("lastReadingValue", -1f);
+                        int oldValue = sgv.value;
+                        try {
+                            oldValue = SP.getInt("lastReadingValue", -1);
+                        }catch (Exception e) {
+                            SP.putInt("lastReadingValue", sgv.value);
+                        }
                         long sgvTime = sgv.timestamp;
                         //check if old value is not older than 17min
                         boolean hasTimeGap = (sgvTime - oldTime) > 12 * 60 *1000L;
@@ -245,7 +250,7 @@ public class ReadReceiver extends BroadcastReceiver {
                             ToastUtils.makeToast("NOT A READING!");
                         }
                         SP.putLong("lastReadingTime", sgvTime);
-                        SP.putFloat("lastReadingValue", sgv.value);
+                        SP.putInt("lastReadingValue", sgv.value);
                         //SP.putFloat("lastReadingDirection", slopeByMinute);
                     }
                 }
@@ -262,6 +267,7 @@ public class ReadReceiver extends BroadcastReceiver {
             ToastUtils.makeToast("DB is empty!\nIt can take up to 15min with running Eversense App until values are available!");
         } catch (Exception e) {
             e.printStackTrace();
+            SP.putInt("lastReadingValue", 120);
         }
 
         //wl.release();

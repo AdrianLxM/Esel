@@ -173,7 +173,6 @@ public class MainActivity extends MenuActivity {
 
             boolean nlenabled = NotificationManagerCompat.getEnabledListenerPackages(getBaseContext()).contains(packageName);
 
-
             if (!nlenabled) {
                 final Runnable askNotificationAccessRunnable = new Runnable() {
                     @Override

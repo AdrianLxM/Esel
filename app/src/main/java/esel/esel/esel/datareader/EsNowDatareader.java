@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -42,6 +43,8 @@ public final class EsNowDatareader {
     private  List<CareService.UserProfileDto> user;
     private  List<CareService.CurrentValuesDto> values;
     private  List<CareService.UserEventDto> events;
+
+    public ArrayBlockingQueue<SGV> eventsQueue;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
@@ -132,7 +135,7 @@ public final class EsNowDatareader {
     private SGV generateSGV(CareService.UserEventDto data, int record){
         LocalDateTime date = LocalDateTime.parse(data.eventDate,dateformat);
         int timestamp = (int)date.atZone(zoneId).toEpochSecond();
-        float sgv = data.value;
+        int sgv = data.value;
 
         return new SGV(sgv,timestamp,record);
     }
@@ -140,7 +143,7 @@ public final class EsNowDatareader {
     private SGV generateSGV(CareService.CurrentValuesDto data){
         LocalDateTime date = LocalDateTime.parse(data.timeStamp,dateformat);
         int timestamp = (int)date.atZone(zoneId).toEpochSecond();
-        float sgv = data.currentGlucose;
+        int sgv = data.currentGlucose;
 
         return new SGV(sgv,timestamp,1);
     }
