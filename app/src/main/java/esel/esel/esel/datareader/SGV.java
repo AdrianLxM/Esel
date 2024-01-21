@@ -16,9 +16,9 @@ import static java.lang.Math.min;
  */
 
 public class SGV {
-    public int value;
+    public int value; //unit: md/dl (always used internally)
     public int raw;
-    public long timestamp;
+    public long timestamp; // UNIX time in ms
     public int record;
     public String direction;
 

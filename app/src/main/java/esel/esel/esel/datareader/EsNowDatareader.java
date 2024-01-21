@@ -1,19 +1,11 @@
 package esel.esel.esel.datareader;
 
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,10 +35,10 @@ public final class EsNowDatareader {
     private  List<CareService.UserProfileDto> user;
     private  List<CareService.CurrentValuesDto> values;
     private  List<CareService.UserEventDto> events;
-
-    public ArrayBlockingQueue<SGV> eventsQueue;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private ProcessResultI processor;
+
 
     private int userId = 0;
 
@@ -62,12 +54,6 @@ public final class EsNowDatareader {
         token_expires = SP.getLong("es_now_token_expire", token_expires);
         userId = SP.getInt("esnow_userId", userId);
 
-    }
-
-    public EsNowDatareader(String email, String pwd) {
-        username = email;
-        password = pwd;
-        login();
     }
 
     static public void updateLogin(){
@@ -95,54 +81,38 @@ public final class EsNowDatareader {
         UserController data = new UserController();
         data.start();
     }
-    public void queryCurrentValue() {
+    public void queryCurrentValue(ProcessResultI processor) {
 
+        this.processor = processor;
             SgvController data = new SgvController();
             data.start();
 
 
     }
 
-    public void queryLastValues(int hours) {
+    public void queryLastValues(ProcessResultI processor,  int hours) {
 
             LocalDateTime.now();
             startDate = LocalDateTime.now().minusHours(hours);
             endDate = LocalDateTime.now();
+            this.processor = processor;
             SgvHistController data = new SgvHistController();
             data.start();
 
     }
-    public SGV getCurrentValue(){
-        if(values != null && values.size()>0){
-            return  generateSGV(values.get(values.size()-1));
-        }
-        return null;
-    }
 
-    public List<SGV> getLastValues(){
-        List<SGV> result = new ArrayList<SGV>();
-
-        if(events == null){
-            return result;
-        }
-        for (int i = 0; i<events.size();i++) {
-            result.add(generateSGV(events.get(i),i));
-
-        }
-        return result;
-    }
 
     private SGV generateSGV(CareService.UserEventDto data, int record){
-        LocalDateTime date = LocalDateTime.parse(data.eventDate,dateformat);
-        int timestamp = (int)date.atZone(zoneId).toEpochSecond();
+        ZonedDateTime date = ZonedDateTime.parse(data.eventDate,dateformat.withZone(ZoneId.of("UTC")));
+        long timestamp = (long)date.toEpochSecond() * 1000;
         int sgv = data.value;
 
         return new SGV(sgv,timestamp,record);
     }
 
     private SGV generateSGV(CareService.CurrentValuesDto data){
-        LocalDateTime date = LocalDateTime.parse(data.timeStamp,dateformat);
-        int timestamp = (int)date.atZone(zoneId).toEpochSecond();
+        ZonedDateTime date = ZonedDateTime.parse(data.timeStamp,dateformat.withZone(ZoneId.of("UTC")));
+        long timestamp = (long)date.toEpochSecond() *1000;
         int sgv = data.currentGlucose;
 
         return new SGV(sgv,timestamp,1);
@@ -229,6 +199,8 @@ public final class EsNowDatareader {
 
 
     public class SgvController implements Callback<List<CareService.CurrentValuesDto>> {
+
+
         public void start() {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -250,6 +222,12 @@ public final class EsNowDatareader {
         public void onResponse(Call<List<CareService.CurrentValuesDto>> call, Response<List<CareService.CurrentValuesDto>> response) {
             if (response.isSuccessful()) {
                 values = response.body();
+                List<SGV> result = new ArrayList<SGV>();
+                SGV value = generateSGV(values.get(0));
+                result.add(value);
+                if(processor != null) {
+                    processor.ProcessResult(result);
+                }
             } else {
                 System.out.println(response.errorBody());
             }
@@ -262,6 +240,7 @@ public final class EsNowDatareader {
     }
 
     public class SgvHistController implements Callback<List<CareService.UserEventDto>> {
+
         public void start() {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -283,6 +262,15 @@ public final class EsNowDatareader {
         public void onResponse(Call<List<CareService.UserEventDto>> call, Response<List<CareService.UserEventDto>> response) {
             if (response.isSuccessful()) {
                 events = response.body();
+                List<SGV> result = new ArrayList<SGV>();
+                for (int i = 0; i < events.size(); i++){
+                    SGV value = generateSGV(events.get(i),i);
+                    result.add(value);
+                }
+                if (processor != null){
+                    processor.ProcessResult(result);
+                }
+
             } else {
                 System.out.println(response.errorBody());
             }
@@ -292,6 +280,12 @@ public final class EsNowDatareader {
         public void onFailure(Call<List<CareService.UserEventDto>> call, Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    public interface ProcessResultI{
+
+        public void ProcessResult(List<SGV> data);
+
     }
 
 }

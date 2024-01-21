@@ -3,6 +3,8 @@ package esel.esel.esel.util;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
+
+import esel.esel.esel.datareader.SGV;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -135,4 +137,6 @@ public interface CareService {
             this.profileImageBase64 = paramString4;
         }
     }
+
+
 }

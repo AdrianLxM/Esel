@@ -38,6 +38,7 @@ import java.util.List;
 
 import esel.esel.esel.datareader.Datareader;
 import esel.esel.esel.datareader.EsNotificationListener;
+import esel.esel.esel.datareader.EsNowDatareader;
 import esel.esel.esel.datareader.SGV;
 import esel.esel.esel.preferences.Preferences;
 import esel.esel.esel.preferences.PrefsFragment;
@@ -81,17 +82,42 @@ public class MainActivity extends MenuActivity {
 
                     long syncTime = 30 * 60 * 1000L;
 
-                    List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(), 6, currentTime - syncTime);
-
-                    if (valueArray != null && valueArray.size() > 0) {
-                        textViewValue.setText("");
-                        for (int i = 0; i < valueArray.size(); i++) {
-                            SGV sgv = valueArray.get(i);
-                            textViewValue.append(sgv.toString() + "\n");
-                            //LocalBroadcaster.broadcast(sgv);
+                    boolean use_esdms = SP.getBoolean("use_esdms",false);
+                    if(use_esdms){
+                        class DataHandler implements EsNowDatareader.ProcessResultI{
+                            @Override
+                            public void ProcessResult(List<SGV> data) {
+                                if (data != null && data.size() > 0) {
+                                    textViewValue.setText("");
+                                    for (int i = 0; i < data.size(); i++) {
+                                        SGV sgv = data.get(i);
+                                        textViewValue.append(sgv.toString() + "\n");
+                                        //LocalBroadcaster.broadcast(sgv);
+                                    }
+                                } else {
+                                    ToastUtils.makeToast("No access to eversensedms");
+                                }
+                            }
                         }
-                    } else {
-                        ToastUtils.makeToast("DB not readable!");
+
+                        EsNowDatareader reader = new EsNowDatareader();
+                        reader.queryCurrentValue(new DataHandler());
+
+
+
+                    }else {
+                        List<SGV> valueArray = Datareader.readDataFromContentProvider(getBaseContext(), 6, currentTime - syncTime);
+
+                        if (valueArray != null && valueArray.size() > 0) {
+                            textViewValue.setText("");
+                            for (int i = 0; i < valueArray.size(); i++) {
+                                SGV sgv = valueArray.get(i);
+                                textViewValue.append(sgv.toString() + "\n");
+                                //LocalBroadcaster.broadcast(sgv);
+                            }
+                        } else {
+                            ToastUtils.makeToast("DB not readable!");
+                        }
                     }
 
 
@@ -117,9 +143,10 @@ public class MainActivity extends MenuActivity {
                     e.printStackTrace();
                 }
 
+
                 ReadReceiver receiver = new ReadReceiver();
-                int written = receiver.FullSync(getBaseContext(), sync);
-                textViewValue.setText("Read " + written + " values from DB\n(last " + sync + " hours)");
+                receiver.FullSync(getBaseContext(), sync);
+                textViewValue.setText("Read values from DB\n(last " + sync + " hours)");
 
             }
         });
@@ -128,6 +155,7 @@ public class MainActivity extends MenuActivity {
             @Override
             public void onClick(View view) {
                 int sync = 8;
+
                 try {
 
                     sync = SP.getInt("max-sync-hours", sync);
@@ -136,31 +164,19 @@ public class MainActivity extends MenuActivity {
                     e.printStackTrace();
                 }
 
-                ReadReceiver receiver = new ReadReceiver();
-                String output = receiver.FullExport(getBaseContext(), sync);
 
-                String filename = "esel_output_" + System.currentTimeMillis() + ".json";
-                String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + Environment.DIRECTORY_DOWNLOADS;
-                File file = new File(path, filename);
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdir();
+                    String filename = "esel_output_" + System.currentTimeMillis() + ".json";
+                    String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + Environment.DIRECTORY_DOWNLOADS;
+                    File file = new File(path, filename);
+
+                    ReadReceiver receiver = new ReadReceiver();
+
+                     receiver.FullExport(getBaseContext(),file, sync);
+
+                    textViewValue.setText("Created file " + file.getAbsoluteFile() + " containing values from DB\n(last " + sync + " hours)");
+
+
                 }
-                if (!file.getParentFile().canWrite()) {
-                    ToastUtils.makeToast("Error: can not write data. Please enable the storage access permission for Esel.");
-                }
-                if (!file.exists()) {
-                    try {
-                        file.createNewFile();
-                        FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
-                        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                        bufferedWriter.write(output.toString());
-                        bufferedWriter.close();
-                        textViewValue.setText("Created file " + file.getAbsoluteFile() + " containing values from DB\n(last " + sync + " hours)");
-                    } catch (IOException err) {
-                        ToastUtils.makeToast("Error creating file: " + err.toString() + " occured at: " + err.getStackTrace().toString());
-                    }
-                }
-            }
         });
 
     }
