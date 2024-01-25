@@ -291,11 +291,9 @@ public class ReadReceiver extends BroadcastReceiver {
             if (newValue && !futureValue) {
                 //if (!futureValue) {
                 int oldValue = sgv.value;
-                try {
-                    oldValue = SP.getInt("lastReadingValue", -1);
-                }catch (Exception e) {
-                    SP.putInt("lastReadingValue", sgv.value);
-                }
+
+                oldValue = SP.getInt("lastReadingValue", -1);
+
                 long sgvTime = sgv.timestamp;
                 //check if old value is not older than 17min
                 boolean hasTimeGap = (sgvTime - oldTime) > 12 * 60 *1000L;

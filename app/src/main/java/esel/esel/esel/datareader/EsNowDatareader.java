@@ -1,5 +1,6 @@
 package esel.esel.esel.datareader;
 
+import java.io.Reader;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -12,7 +13,9 @@ import com.google.gson.GsonBuilder;
 
 import esel.esel.esel.util.CareService;
 import esel.esel.esel.util.SP;
+import esel.esel.esel.util.ToastUtils;
 import esel.esel.esel.util.UserLoginService;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -74,7 +77,7 @@ public final class EsNowDatareader {
 
     private boolean tokenHasExpired(){
         long currentTime = System.currentTimeMillis();
-        return currentTime > token_expires;
+        return  currentTime > token_expires;
     }
 
     private void currentUser() {
@@ -150,7 +153,27 @@ public final class EsNowDatareader {
                     currentUser();
                 }
             } else {
-                System.out.println(response.errorBody());
+                try {
+                    ResponseBody body = response.errorBody();
+                    Reader reader = response.errorBody().charStream();
+                    char[] charBuffer = new char[500];
+                    int amountRead = reader.read(charBuffer);
+                    charBuffer[amountRead] = '\0';
+                    String msg = new String(charBuffer, 0, amountRead);
+                    if(msg.contains("6008")){
+                        ToastUtils.makeToast("Eversensedms: Not authorized. Check username and password. Disabling Eversensedms...");
+                        SP.putBoolean("use_esdms", false);
+                    }else if(msg.contains("5005")) {
+                        ToastUtils.makeToast("Eversensedms: Not authorized. Check username and password. Account is locked. Try again in 30min. Disabling Eversensedms...");
+                        SP.putBoolean("use_esdms", false);
+                    }else{
+                        ToastUtils.makeToast(msg);
+                    }
+
+
+                }catch(Exception err){
+                    System.out.println(err.getMessage());
+                }
             }
         }
 

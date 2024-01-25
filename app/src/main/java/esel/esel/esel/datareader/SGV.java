@@ -69,11 +69,11 @@ public class SGV {
      */
 
     public void smooth(int last,boolean onlyDummyRun){
-        double value = this.value;
+        double value = (double)this.value;
         double lastSmooth = (double)last;
 
         if(onlyDummyRun){
-            SP.putFloat("lastReadingRaw", this.value);
+            SP.putInt("lastReadingRaw", this.value);
             SP.putFloat("readingSmooth",(float)this.value);
             return;
         }

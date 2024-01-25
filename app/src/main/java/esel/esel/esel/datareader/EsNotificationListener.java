@@ -30,7 +30,9 @@ public class EsNotificationListener extends NotificationListenerService {
             if (notification != null && notification.tickerText != null) {
                 try {
                    SGV sgv = generateSGV(notification,lastReadings.size());
-                   lastReadings.add(sgv);
+                   if(sgv != null) {
+                       lastReadings.add(sgv);
+                   }
                 } catch (NumberFormatException err) {
                     err.printStackTrace();
                 }
@@ -42,9 +44,9 @@ public class EsNotificationListener extends NotificationListenerService {
     public static List<SGV> getData(int number, long lastReadingTime){
         List<SGV> result = new ArrayList<SGV>();
         for (SGV reading:lastReadings) {
-            if(reading.timestamp > lastReadingTime){
+            //if(reading.timestamp > lastReadingTime){
                 result.add(reading);
-            }
+            //}
 
         }
 
@@ -70,6 +72,15 @@ public class EsNotificationListener extends NotificationListenerService {
             value = SGV.Convert(valuef);
         }else{
             value =Integer.parseInt(tickerText);
+        }
+
+        long five_min = 300000l;
+
+        if(lastReadings.size()>0) {
+            SGV oldSgv = lastReadings.get(lastReadings.size() - 1);
+            if (value == oldSgv.value && (oldSgv.timestamp + (five_min * 1.05)) > timestamp ) { // no new value
+                return null;
+            }
         }
 
         return new SGV(value, timestamp,record);
