@@ -47,19 +47,19 @@ public class SGV {
 
     public void setDirection(double slope_by_minute) {
         direction = "NONE";
-        if (slope_by_minute <= (-3.5)) {
+        if (slope_by_minute <= (-3.5d)) {
             direction = "DoubleDown";
-        } else if (slope_by_minute <= (-2)) {
+        } else if (slope_by_minute <= (-2d)) {
             direction = "SingleDown";
-        } else if (slope_by_minute <= (-1)) {
+        } else if (slope_by_minute <= (-1d)) {
             direction = "FortyFiveDown";
-        } else if (slope_by_minute <= (1)) {
+        } else if (slope_by_minute <= (1d)) {
             direction = "Flat";
-        } else if (slope_by_minute <= (2)) {
+        } else if (slope_by_minute <= (2d)) {
             direction = "FortyFiveUp";
-        } else if (slope_by_minute <= (3.5)) {
+        } else if (slope_by_minute <= (3.5d)) {
             direction = "SingleUp";
-        } else if (slope_by_minute <= (40)) {
+        } else if (slope_by_minute <= (40d)) {
             direction = "DoubleUp";
         }
     }

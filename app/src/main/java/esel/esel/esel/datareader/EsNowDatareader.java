@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import esel.esel.esel.util.CareService;
+import esel.esel.esel.util.EselLog;
 import esel.esel.esel.util.SP;
 import esel.esel.esel.util.ToastUtils;
 import esel.esel.esel.util.UserLoginService;
@@ -24,6 +25,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class EsNowDatareader {
 
+    private static final String TAG = "EsNowDatareader";
     private String username;
     private String password;
     static final  String grant_type = "password";
@@ -151,35 +153,35 @@ public final class EsNowDatareader {
                     SP.putString("esnow_token",bearer_token );
                     SP.putLong("es_now_token_expire", token_expires);
                     currentUser();
+                    EselLog.LogI(TAG,"Eversensedms: Successfully logged in.");
                 }
             } else {
                 try {
-                    ResponseBody body = response.errorBody();
                     Reader reader = response.errorBody().charStream();
                     char[] charBuffer = new char[500];
                     int amountRead = reader.read(charBuffer);
                     charBuffer[amountRead] = '\0';
                     String msg = new String(charBuffer, 0, amountRead);
                     if(msg.contains("6008")){
-                        ToastUtils.makeToast("Eversensedms: Not authorized. Check username and password. Disabling Eversensedms...");
+                        EselLog.LogW(TAG,"Not authorized. Check username and password. Disabling Eversensedms...",true);
                         SP.putBoolean("use_esdms", false);
                     }else if(msg.contains("5005")) {
-                        ToastUtils.makeToast("Eversensedms: Not authorized. Check username and password. Account is locked. Try again in 30min. Disabling Eversensedms...");
+                        EselLog.LogW(TAG,"Not authorized. Check username and password. Account is locked. Try again in 30min. Disabling Eversensedms...",true);
                         SP.putBoolean("use_esdms", false);
                     }else{
-                        ToastUtils.makeToast(msg);
+                        EselLog.LogW(TAG,msg,true);
                     }
 
 
                 }catch(Exception err){
-                    System.out.println(err.getMessage());
+                    EselLog.LogE(TAG,err.getMessage(),true);
                 }
             }
         }
 
         @Override
         public void onFailure(Call<UserLoginService.SenseonicsTokenDto> call, Throwable t) {
-            t.printStackTrace();
+            EselLog.LogE(TAG, t.getStackTrace().toString(), true);
         }
     }
 
@@ -208,15 +210,20 @@ public final class EsNowDatareader {
                 if(user != null){
                     userId = user.get(0).userId;
                     SP.putInt("esnow_userId",userId );
+                    EselLog.LogI(TAG,"UserId is " + userId);
                 }
             } else {
-                System.out.println(response.errorBody());
+                try {
+                    EselLog.LogE(TAG, response.errorBody().string(), true);
+                }catch(Exception err){
+                    EselLog.LogE(TAG, err.getMessage(), true);
+                }
             }
         }
 
         @Override
         public void onFailure(Call<List<CareService.UserProfileDto>> call, Throwable t) {
-            t.printStackTrace();
+            EselLog.LogE(TAG, t.getStackTrace().toString(), true);
         }
     }
 
@@ -252,13 +259,17 @@ public final class EsNowDatareader {
                     processor.ProcessResult(result);
                 }
             } else {
-                System.out.println(response.errorBody());
+                try {
+                    EselLog.LogE(TAG, response.errorBody().string(), true);
+                }catch(Exception err){
+                    EselLog.LogE(TAG, err.getMessage(), true);
+                }
             }
         }
 
         @Override
         public void onFailure(Call<List<CareService.CurrentValuesDto>> call, Throwable t) {
-            t.printStackTrace();
+            EselLog.LogE(TAG, t.getStackTrace().toString(), true);
         }
     }
 
@@ -295,13 +306,17 @@ public final class EsNowDatareader {
                 }
 
             } else {
-                System.out.println(response.errorBody());
+                try {
+                    EselLog.LogE(TAG, response.errorBody().string(), true);
+                }catch(Exception err){
+                    EselLog.LogE(TAG, err.getMessage(), true);
+                }
             }
         }
 
         @Override
         public void onFailure(Call<List<CareService.UserEventDto>> call, Throwable t) {
-            t.printStackTrace();
+            EselLog.LogE(TAG, t.getStackTrace().toString(), true);
         }
     }
 

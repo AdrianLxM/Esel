@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <application
         android:name=".Esel"
         android:allowBackup="true"
@@ -27,7 +28,7 @@
         </activity>
 
         <activity android:name=".preferences.Preferences"></activity>
-        <activity android:name=".ErrorsActivity"
+        <activity android:name=".LogActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <receiver android:name=".receivers.ReadReceiver" />
@@ -50,4 +51,10 @@
             <meta-data android:name="android.service.notification.notification_listener_service" android:value=".datareader.EsNotificationListener" />
         </service>
     </application>
+    <queries>
+        <package android:name="com.senseonics.gen12androidapp"/>
+        <package android:name="com.senseonics.androidapp"/>
+        <package android:name="com.eveningoutpost.dexdrip"/>
+        <package android:name="info.nightscout.androidaps"/>
+    </queries>
 </manifest>

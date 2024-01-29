@@ -5,9 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Environment;
 import android.os.PowerManager;
-import android.util.Log;
 
 import org.json.JSONArray;
 
@@ -19,10 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import esel.esel.esel.Esel;
+import esel.esel.esel.LogActivity;
 import esel.esel.esel.datareader.Datareader;
 import esel.esel.esel.datareader.EsNotificationListener;
 import esel.esel.esel.datareader.EsNowDatareader;
 import esel.esel.esel.datareader.SGV;
+import esel.esel.esel.util.EselLog;
 import esel.esel.esel.util.LocalBroadcaster;
 import esel.esel.esel.util.SP;
 import esel.esel.esel.util.ToastUtils;
@@ -43,10 +43,10 @@ public class ReadReceiver extends BroadcastReceiver {
     @Override
     public synchronized void onReceive(Context context, Intent intent) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Esel:ReadReceiver:Boradcast");
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Esel:ReadReceiver:Broadcast");//Boradcast
         wl.acquire();
 
-        Log.d(TAG, "onReceive called");
+        EselLog.LogV(TAG,"onReceive called");
         setAlarm(Esel.getsInstance());
 
 
@@ -79,7 +79,9 @@ public class ReadReceiver extends BroadcastReceiver {
 
 
         } catch (Exception e) {
-            ToastUtils.makeToast("Exception: " + e.getMessage());
+            String msg = e.getMessage();
+            ToastUtils.makeToast("Exception: " + msg);
+            EselLog.LogE(TAG,msg);
         }
 
 
@@ -110,10 +112,13 @@ public class ReadReceiver extends BroadcastReceiver {
                 public void ProcessResult(List<SGV> data) {
                     try {
                         int written = ProcesssValues( false, data);
-                        ToastUtils.makeToast("Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)");
+                        String msg = "Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)";
+                        //ToastUtils.makeToast(msg);
+                        EselLog.LogI(TAG,msg,true);
                     }
                     catch(Exception e){
-                        ToastUtils.makeToast("No access to eversensedms");
+                        //ToastUtils.makeToast("No access to eversensedms");
+                        EselLog.LogE(TAG,"No access to eversensedms",true);
                     }
                 }
             }
@@ -127,7 +132,9 @@ public class ReadReceiver extends BroadcastReceiver {
 
             //disable smoothing as historical data will be overwritten
             int written =  broadcastData(context, lastTimestamp, false);
-            ToastUtils.makeToast("Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)");
+            String msg = "Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)";
+            //ToastUtils.makeToast(msg);
+            EselLog.LogI(TAG,msg,true);
         }
 
         SP.putLong("last_full_sync", currentTime);
@@ -152,10 +159,13 @@ public class ReadReceiver extends BroadcastReceiver {
                 @Override
                 public void ProcessResult(List<SGV> data) {
                     int written = ProcesssValues( false,data);
-                    ToastUtils.makeToast("Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)");
+                    String msg = "Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)";
+                    //ToastUtils.makeToast(msg);
+                    EselLog.LogI(TAG, msg,true);
                     WriteData(file,output.toString());
                     output = new JSONArray();
                     suppressBroadcast = false;
+
                 }
             }
 
@@ -168,11 +178,14 @@ public class ReadReceiver extends BroadcastReceiver {
             suppressBroadcast = false;
             WriteData(file,output.toString());
             output = new JSONArray();
+            String msg = "Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)";
+            //ToastUtils.makeToast(msg);
+            EselLog.LogI(TAG, msg,true);
+
         }
 
-        SP.putLong("last_full_sync", currentTime);
 
-        ToastUtils.makeToast("Full Sync done: Read " + written + " values from DB\n(last " + syncHours + " hours)");
+        SP.putLong("last_full_sync", currentTime);
 
     }
 
@@ -182,7 +195,9 @@ public class ReadReceiver extends BroadcastReceiver {
             file.getParentFile().mkdir();
         }
         if (!file.getParentFile().canWrite()) {
-            ToastUtils.makeToast("Error: can not write data. Please enable the storage access permission for Esel.");
+            String msg = "Error: can not write data. Please enable the storage access permission for Esel.";
+            //ToastUtils.makeToast(msg);
+            EselLog.LogE(TAG, msg,true);
         }
         if (!file.exists()) {
             try {
@@ -193,7 +208,9 @@ public class ReadReceiver extends BroadcastReceiver {
                 bufferedWriter.close();
 
             } catch (IOException err) {
-                ToastUtils.makeToast("Error creating file: " + err.toString() + " occured at: " + err.getStackTrace().toString());
+                String msg = "Error creating file: " + err.toString() + " occured at: " + err.getStackTrace().toString();
+                //ToastUtils.makeToast(msg);
+                EselLog.LogE(TAG, msg,true);
             }
         }
 
@@ -232,14 +249,13 @@ public class ReadReceiver extends BroadcastReceiver {
                     valueArray = Datareader.readDataFromContentProvider(context, size, lastReadingTime);
 
                     if (valueArray.size() == 0) {
-                        ToastUtils.makeToast("DB not readable!");
+                        //ToastUtils.makeToast("DB not readable!");
+                        EselLog.LogE(TAG,"DB not readable!",true);
                     }
                 }else {
                     boolean read_from_nl = true;
                     if(use_esdms){
-
                         EsNowDatareader.updateLogin();
-
                     }
                     if(read_from_nl){
                         valueArray = EsNotificationListener.getData(size,lastReadingTime);
@@ -247,17 +263,18 @@ public class ReadReceiver extends BroadcastReceiver {
                 }
 
                 if (valueArray.size() != size) {
-                    return 0;
+                    return result;
                 }
 
-                result =  ProcesssValues(smoothEnabled,valueArray);
+                result +=  ProcesssValues(smoothEnabled,valueArray);
 
                 updatedReadingTime = SP.getLong("lastReadingTime", lastReadingTime);
             } while (updatedReadingTime != lastReadingTime);
 
         } catch (android.database.CursorIndexOutOfBoundsException eb) {
             eb.printStackTrace();
-            ToastUtils.makeToast("DB is empty!\nIt can take up to 15min with running Eversense App until values are available!");
+            //ToastUtils.makeToast("DB is empty!\nIt can take up to 15min with running Eversense App until values are available!");
+            EselLog.LogW(TAG,"DB is empty! It can take up to 15min with running Eversense App until values are available!",true);
         } catch (Exception e) {
             e.printStackTrace();
             SP.putInt("lastReadingValue", 120);
@@ -284,7 +301,7 @@ public class ReadReceiver extends BroadcastReceiver {
                 //sgv is from future
                 long shiftValue = sgv.timestamp - currentTime;
                 float sec = shiftValue/1000f;
-                Log.d(TAG, "broadcastData called, value is in future by [sec] " + sec);
+                EselLog.LogW(TAG,"broadcastData called, value is in future by [sec] " + sec);
                 futureValue = true;
             }
 
@@ -295,16 +312,8 @@ public class ReadReceiver extends BroadcastReceiver {
                 oldValue = SP.getInt("lastReadingValue", -1);
 
                 long sgvTime = sgv.timestamp;
-                //check if old value is not older than 17min
+                //check if old value is not older than 12min
                 boolean hasTimeGap = (sgvTime - oldTime) > 12 * 60 *1000L;
-
-                float slopeByMinute = 0f;
-                if (oldTime != sgvTime) {
-                    slopeByMinute = (oldValue - sgv.value) * 60000.0f / ((oldTime - sgvTime) * 1.0f);
-                }
-                if(!hasTimeGap){
-                    sgv.setDirection(slopeByMinute);
-                }
 
                 if (sgv.value >= 39 /*&& oldValue >= 39*/) { //check  for old value to ignore first 5 min
                     //ToastUtils.makeToast(sgv.toString());
@@ -312,9 +321,15 @@ public class ReadReceiver extends BroadcastReceiver {
                         sgv.smooth(oldValue,hasTimeGap);
                     }
 
+                    double slopeByMinute = 0d;
+                    if (oldTime != sgvTime) {
+                        slopeByMinute = (sgv.value - oldValue ) * 60000.0d / (( sgvTime - oldTime) * 1.0d);
+                    }
+                    if(!hasTimeGap){
+                        sgv.setDirection(slopeByMinute);
+                    }
+
                     try {
-
-
                         if (!suppressBroadcast) {
                             LocalBroadcaster.broadcast(sgv);
                         } else {
@@ -322,10 +337,9 @@ public class ReadReceiver extends BroadcastReceiver {
                         }
 
                         result++;
-                        Log.d(TAG, "LocalBroadcaster.broadcast called, result = " + sgv.toString());
                     }
                     catch(Exception e){
-                        Log.d(TAG, "LocalBroadcaster.broadcast exception, result = " + e.getMessage());
+                        EselLog.LogE(TAG,"LocalBroadcaster.broadcast exception, result = " + e.getMessage());
                     }
                 } else {
                     ToastUtils.makeToast("NOT A READING!");
