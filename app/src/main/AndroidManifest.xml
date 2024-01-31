@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="esel.esel.esel">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY"/>
-
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <application
         android:name=".Esel"
         android:allowBackup="true"
@@ -27,11 +28,9 @@
         </activity>
 
         <activity android:name=".preferences.Preferences"></activity>
-        <activity android:name=".ErrorsActivity"
+        <activity android:name=".LogActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-
-
         <receiver android:name=".receivers.ReadReceiver" />
         <receiver android:name=".receivers.KeepAliveReceiver" />
 
@@ -41,8 +40,21 @@
             </intent-filter>
         </receiver>
 
-
-
+        <service
+            android:name=".datareader.EsNotificationListener"
+            android:exported="true"
+            android:label="@string/EsNotificationListener_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+            <meta-data android:name="android.service.notification.notification_listener_service" android:value=".datareader.EsNotificationListener" />
+        </service>
     </application>
-
+    <queries>
+        <package android:name="com.senseonics.gen12androidapp"/>
+        <package android:name="com.senseonics.androidapp"/>
+        <package android:name="com.eveningoutpost.dexdrip"/>
+        <package android:name="info.nightscout.androidaps"/>
+    </queries>
 </manifest>

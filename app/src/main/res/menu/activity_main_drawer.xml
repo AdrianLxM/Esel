@@ -14,7 +14,7 @@
             <item
                 android:id="@+id/nav_errors"
                 android:icon="@drawable/ic_menu_error"
-                android:title="Errors" />
+                android:title="Log" />
         </group>
     </item>
 </menu>

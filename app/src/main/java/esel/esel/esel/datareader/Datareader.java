@@ -107,15 +107,12 @@ public class Datareader {
         return valueArray;
     }
 
+
     public static SGV generateSGV(String dataString){
         String[] tokens = dataString.split(",");
         long timestamp = Long.parseLong(tokens[0]);
         int value = Integer.parseInt(tokens[1]);
         int record = Integer.parseInt(tokens[2]);
-        return new SGV(value, timestamp,record);
-    }
-
-    public static SGV generateSGV(int value, long timestamp, int record){
         return new SGV(value, timestamp,record);
     }
 

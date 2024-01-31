@@ -3,7 +3,6 @@ package esel.esel.esel.util;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,10 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+import esel.esel.esel.LogActivity;
 import esel.esel.esel.Esel;
 import esel.esel.esel.datareader.SGV;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by adrian on 04/08/17.
@@ -49,8 +47,11 @@ public class LocalBroadcaster {
                 sendBundle("dbAdd", "entries", generateSgvEntry(sgv), ACTION_DATABASE);
             }
 
+            EselLog.LogI(TAG, String.valueOf(sgv.value) + " " + sgv.direction );
+
         } catch (Exception e) {
-            Log.e(TAG, "Unable to send bundle: " + e);
+            String msg = "Unable to send bundle: " + e;
+            EselLog.LogE(TAG,msg);
         }
     }
 
@@ -93,7 +94,7 @@ public class LocalBroadcaster {
             if (packageName != null) {
                 intent.setPackage(packageName);
                 Esel.getsInstance().sendBroadcast(intent);
-                Log.d(TAG, "sent to: " + packageName);
+                EselLog.LogI(TAG,"send to: " + packageName);
             }
         }
     }

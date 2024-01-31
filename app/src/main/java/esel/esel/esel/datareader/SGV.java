@@ -16,9 +16,9 @@ import static java.lang.Math.min;
  */
 
 public class SGV {
-    public int value;
+    public int value; //unit: md/dl (always used internally)
     public int raw;
-    public long timestamp;
+    public long timestamp; // UNIX time in ms
     public int record;
     public String direction;
 
@@ -34,6 +34,11 @@ public class SGV {
         else if (this.value > 400) { this.value = 400;}
     }
 
+    static public int Convert(float mmoll){
+        float mgdl = mmoll * 18.0182f;
+        return Math.round(mgdl);
+    }
+
     @Override
     public String toString(){
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
@@ -42,28 +47,32 @@ public class SGV {
 
     public void setDirection(double slope_by_minute) {
         direction = "NONE";
-        if (slope_by_minute <= (-3.5)) {
+        if (slope_by_minute <= (-3.5d)) {
             direction = "DoubleDown";
-        } else if (slope_by_minute <= (-2)) {
+        } else if (slope_by_minute <= (-2d)) {
             direction = "SingleDown";
-        } else if (slope_by_minute <= (-1)) {
+        } else if (slope_by_minute <= (-1d)) {
             direction = "FortyFiveDown";
-        } else if (slope_by_minute <= (1)) {
+        } else if (slope_by_minute <= (1d)) {
             direction = "Flat";
-        } else if (slope_by_minute <= (2)) {
+        } else if (slope_by_minute <= (2d)) {
             direction = "FortyFiveUp";
-        } else if (slope_by_minute <= (3.5)) {
+        } else if (slope_by_minute <= (3.5d)) {
             direction = "SingleUp";
-        } else if (slope_by_minute <= (40)) {
+        } else if (slope_by_minute <= (40d)) {
             direction = "DoubleUp";
         }
     }
 
-    public void smooth(int last,boolean onlyDummyRun){
-        double value = this.value;
+    /**
+     * Created by bernhard on 2018-11-18.
+     */
+
+    public void smooth(int last,boolean enable_smooth){
+        double value = (double)this.value;
         double lastSmooth = (double)last;
 
-        if(onlyDummyRun){
+        if(!enable_smooth){
             SP.putInt("lastReadingRaw", this.value);
             SP.putFloat("readingSmooth",(float)this.value);
             return;
@@ -77,7 +86,7 @@ public class SGV {
         double factor = SP.getDouble("smooth_factor",0.3,0.0,1.0);
         double correction = SP.getDouble("correction_factor",0.5,0.0,1.0);
         double descent_factor = SP.getDouble("descent_factor",0.0,0.0,1.0);
-        int lastRaw = SP.getInt("lastReadingRaw", this.value);
+        float lastRaw = SP.getInt("lastReadingRaw", this.value);
 
         SP.putInt("lastReadingRaw", this.value);
 
