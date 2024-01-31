@@ -68,11 +68,11 @@ public class SGV {
      * Created by bernhard on 2018-11-18.
      */
 
-    public void smooth(int last,boolean onlyDummyRun){
+    public void smooth(int last,boolean enable_smooth){
         double value = (double)this.value;
         double lastSmooth = (double)last;
 
-        if(onlyDummyRun){
+        if(!enable_smooth){
             SP.putInt("lastReadingRaw", this.value);
             SP.putFloat("readingSmooth",(float)this.value);
             return;

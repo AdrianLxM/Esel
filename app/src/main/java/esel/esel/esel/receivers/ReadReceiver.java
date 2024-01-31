@@ -317,9 +317,16 @@ public class ReadReceiver extends BroadcastReceiver {
 
                 if (sgv.value >= 39 /*&& oldValue >= 39*/) { //check  for old value to ignore first 5 min
                     //ToastUtils.makeToast(sgv.toString());
-                    if(SP.getBoolean("smooth_data",false) && smoothEnabled){
-                        sgv.smooth(oldValue,hasTimeGap);
+                    if(smoothEnabled) {
+                        boolean enable_smooth = SP.getBoolean("smooth_data", false) && !hasTimeGap;
+                        sgv.smooth(oldValue, enable_smooth);
                     }
+
+//                    if(SP.getBoolean("smooth_data",false) && smoothEnabled){
+//                        sgv.smooth(oldValue,hasTimeGap);
+//                    }else {
+//                        sgv.smooth(oldValue,true); //
+//                    }
 
                     double slopeByMinute = 0d;
                     if (oldTime != sgvTime) {

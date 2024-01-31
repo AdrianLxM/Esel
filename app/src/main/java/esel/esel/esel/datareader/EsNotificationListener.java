@@ -3,6 +3,7 @@ package esel.esel.esel.datareader;
 import android.app.Notification;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,14 +75,18 @@ public class EsNotificationListener extends NotificationListenerService {
             value =Integer.parseInt(tickerText);
         }
 
-        long five_min = 300000l;
-
         if(lastReadings.size()>0) {
+            long five_min = 300000l;
             SGV oldSgv = lastReadings.get(lastReadings.size() - 1);
-            if (value == oldSgv.value && (oldSgv.timestamp + (five_min * 1.05)) > timestamp ) { // no new value
+            long lastreadingtime = oldSgv.timestamp; // SP.getLong("lastreadingtime_nl",timestamp);
+            int lastreadingvalue = oldSgv.raw; //SP.getInt("lastreadingvalue_nl",value);
+            if (value == lastreadingvalue && (lastreadingtime + (five_min * 1.05)) > timestamp ) { // no new value
                 return null;
             }
         }
+
+       // SP.putLong("lastreadingtime_nl",timestamp);
+        // SP.putInt("lastreadingvalue_nl",value);
 
         return new SGV(value, timestamp,record);
     }
