@@ -1,6 +1,6 @@
 # Esel
 There are two different methods how to access the readings from Eversense: 
-* Companion mode, which reads the data from the Eversense notifications (works with the standard Eversense App)
+* Companion mode, which reads the data from the Eversense notifications (works with the standard Eversense App, available since ESEL version 3.0.1)
 * Patched mode, which requires a patched version of the Eversense App (works completely offline, including backfilling)
 
 First of all, you need to install ESEL:
@@ -10,6 +10,7 @@ First of all, you need to install ESEL:
 3. Configuration:
   * Allow ESEL to run in the background (it will ask for it)
   * Allow ESEL access to the Android Notifications (it will ask for it)
+    * In newer Android versions, these settings may be not directly accessible due to restricted settings. In this case restricted settings must be allowed first, see "Allow restricted settings" in https://support.google.com/android/answer/12623953
   * Upload to Nightscout: Activate "Send to NightScout" in the preferences. It needs a configured AndroidAPS with internal NSClient or NSClient itself installed on the same phone
   * Inter-App-Broadcasts: Activate "Send to AAPS and xDrip". In xDrip and/or AndroidAPS activate the input method "640g/Eversense".
   * "Smooth Data" applies a smoothing algorithm to the raw values and provides these smoothed values instead of the raw readings. Smoothing is per default disabled.
@@ -31,4 +32,4 @@ First of all, you need to install ESEL:
 3. Configuration of ESEL:
    * Enable the setting "Get data from patched Eversense App"
 
-If you run esel with a fresh installation of Eversense for the first time, it can take up to 15min until your first values appear in xDrip!
+If you run ESEL with a fresh installation of Eversense for the first time, it can take up to 15min until your first values appear in xDrip!

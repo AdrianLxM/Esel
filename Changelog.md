@@ -14,3 +14,10 @@
 ## New Features
 * Esel does not send future vaules
 * Values can be shifted (by total days) to the future (usefull if phone time is shifted to a date in the past)
+
+# Version 3.0.1
+## New Features
+* New icon: we are a pirate donkey now!
+* Companion Mode: ESEL can read CGM values from the notifications provided by the Eversense app
+* Access to [eversensedms.com](https://www.eversensedms.com/) to fill missing data
+* Fixes for smoothing and calculation of direction
